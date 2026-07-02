@@ -1,0 +1,11 @@
+.git
+.gitignore
+.idea
+
+README.md
+
+tmp
+temp
+
+*.log
+.DS_Store
