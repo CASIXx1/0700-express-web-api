@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -32,18 +33,15 @@ func main() {
 	}
 	defer sqlDB.Close()
 
-	r := gin.Default()
+	r := mux.NewRouter()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
-	r.GET("/health", func(c *gin.Context) {
+	// PostgreSQLへの接続
+	// ルーティング
+	// JSONでのレスポンスの書き込みの確認
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		sqlDB, err := db.DB()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			writeJSON(w, http.StatusInternalServerError, map[string]string{
 				"status": "ng",
 				"error":  err.Error(),
 			})
@@ -51,22 +49,31 @@ func main() {
 		}
 
 		if err := sqlDB.Ping(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			writeJSON(w, http.StatusInternalServerError, map[string]string{
 				"status": "ng",
 				"error":  err.Error(),
 			})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
+		writeJSON(w, http.StatusOK, map[string]string{
 			"status": "ok",
 		})
-	})
+	}).Methods(http.MethodGet)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
 
-	if err := r.Run(addr); err != nil {
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func writeJSON(w http.ResponseWriter, statusCode int, body any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	if err := json.NewEncoder(w).Encode(body); err != nil {
+		log.Printf("failed to encode response: %v", err)
 	}
 }

@@ -1,7 +1,6 @@
 # 0700-express-web-api
 
-
-## バックエンド + Web API (Gin + Golang + GORM + PostgreSQL + Docker + JWT)
+## バックエンド + Web API (Mux + Golang + GORM + PostgreSQL + Docker + JWT)
 
 下記、API仕様をもとに Web API を実装してください。
 
@@ -19,7 +18,7 @@ Authorization ヘッダー内のトークンを検証して、トークンが不
 
 ### 技術スタック
 
-- Gin
+- Mux
 - Golang
 - GORM
 - PostgreSQL
@@ -29,13 +28,14 @@ Authorization ヘッダー内のトークンを検証して、トークンが不
 ## 課題で身に着けること
 
 - データベースの基本
-- MVC(Model View Controller)
+- クリーンアーキテクチャ
+- DDD
 - SQLでのCRUD (PostgreSQL)
 - ORMの基礎
 - ORMでのCRUD
 - マイグレーションとシード
 - JWTを使用した認証・認可
-- Golang + Gin を利用したWeb APIの実装
+- Golang + Mux を利用したWeb APIの実装
 
 ## 課題の進め方
 
