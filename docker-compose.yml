@@ -27,5 +27,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  seed:
+    image: golang:1.26-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: app_user
+      DB_PASSWORD: password
+      DB_NAME: express_db
+    command: go run ./cmd/seeds
+
 volumes:
   postgres_data:
