@@ -1,6 +1,7 @@
 package main
 
 import (
+	"0700-express-web-api/internal/auth"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -60,6 +61,9 @@ func main() {
 			"status": "ok",
 		})
 	}).Methods(http.MethodGet)
+
+	authHandler := auth.CreateHandler(db, "secret_test")
+	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
