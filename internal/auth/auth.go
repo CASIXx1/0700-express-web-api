@@ -28,13 +28,17 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	Token string `json:"token"`
+	UUID         string `json:"uuid"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type user struct {
-	USERNAME string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID       string `gorm:"column:id"`
+	Username string `gorm:"column:username"`
+	Email    string `gorm:"column:email"`
+	Password string `gorm:"column:password"`
+	Status   string `gorm:"column:status"`
 }
 
 func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request) {
@@ -44,13 +48,33 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 		return
 	}
 
-	//result, err := handler.login(login.Email, login.Password)
-	//if err != nil {
-	//	json.WriteError(writer, http.StatusUnauthorized, err)
-	//	return
-	//}
+	result, err := handler.login(login.Email, login.Password)
+	if err != nil {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(map[string]string{"status": "ok"})
+	json.NewEncoder(writer).Encode(map[string]any{
+		"data": result,
+	})
+}
+
+func (handler *Handler) login(email, password string) (*loginResponse, error) {
+	var user user
+
+	if err := handler.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	if user.Password != password {
+		return nil, ErrInvalidCredentials
+	}
+
+	return &loginResponse{
+		UUID:         user.ID,
+		AccessToken:  "test-access-token",
+		RefreshToken: "test-refresh-token",
+	}, nil
 }
