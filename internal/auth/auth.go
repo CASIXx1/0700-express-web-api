@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -72,9 +74,32 @@ func (handler *Handler) login(email, password string) (*loginResponse, error) {
 		return nil, ErrInvalidCredentials
 	}
 
+	accessToken, err := handler.generateToken(user.ID, "access", time.Now().Add(time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := handler.generateToken(user.ID, "refresh", time.Now().Add(time.Hour*24*7))
+	if err != nil {
+		return nil, err
+	}
+
 	return &loginResponse{
 		UUID:         user.ID,
-		AccessToken:  "test-access-token",
-		RefreshToken: "test-refresh-token",
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}, nil
+}
+
+func (handler *Handler) generateToken(userId string, tokenType string, expiresAt time.Time) (string, error) {
+	claims := jwt.MapClaims{
+		"sub":  userId,
+		"type": tokenType,
+		"exp":  expiresAt.Unix(),
+		"iat":  time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte("secret"))
 }
