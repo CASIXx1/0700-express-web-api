@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -70,7 +71,7 @@ func (handler *Handler) login(email, password string) (*loginResponse, error) {
 		return nil, err
 	}
 
-	if user.Password != password {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return nil, ErrInvalidCredentials
 	}
 

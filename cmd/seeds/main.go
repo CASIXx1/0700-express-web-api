@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -44,11 +45,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	_, err = sqlDB.Exec(`
 		INSERT INTO users (username, email, password)
-		VALUES ('admin', 'admin@example.com', 'password')
+		VALUES ('admin', 'admin@example.com', $1)
 		ON CONFLICT (email) DO NOTHING;
-	`)
+	`, string(hashedPassword))
 	if err != nil {
 		log.Fatal(err)
 	}
