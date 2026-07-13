@@ -62,7 +62,9 @@ func main() {
 		})
 	}).Methods(http.MethodGet)
 
-	authHandler := auth.CreateHandler(db, "local-jwt-secret")
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	authHandler := auth.CreateHandler(db, jwtSecret)
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 
 	addr := ":8080"

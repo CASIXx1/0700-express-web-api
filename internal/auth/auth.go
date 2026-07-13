@@ -102,5 +102,5 @@ func (handler *Handler) generateToken(userId string, tokenType string, expiresAt
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte("secret"))
+	return token.SignedString([]byte(handler.jwtSecret))
 }
