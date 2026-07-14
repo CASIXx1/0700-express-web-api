@@ -1,6 +1,10 @@
 package auth
 
 import (
+	"0700-express-web-api/ent"
+	entuser "0700-express-web-api/ent/user"
+
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -8,19 +12,18 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
 type Handler struct {
-	db        *gorm.DB
+	dbClient  *ent.Client
 	jwtSecret string
 }
 
-func CreateHandler(db *gorm.DB, jwtSecret string) *Handler {
+func CreateHandler(dbClient *ent.Client, jwtSecret string) *Handler {
 	return &Handler{
-		db:        db,
+		dbClient:  dbClient,
 		jwtSecret: jwtSecret,
 	}
 }
@@ -65,9 +68,12 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 }
 
 func (handler *Handler) login(email, password string) (*loginResponse, error) {
-	var user user
+	user, err := handler.dbClient.User.
+		Query().
+		Where(entuser.EmailEQ(email)).
+		First(context.Background())
 
-	if err := handler.db.Where("email = ?", email).First(&user).Error; err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -75,18 +81,18 @@ func (handler *Handler) login(email, password string) (*loginResponse, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	accessToken, err := handler.generateToken(user.ID, "access", time.Now().Add(time.Hour))
+	accessToken, err := handler.generateToken(user.ID.String(), "access", time.Now().Add(time.Hour))
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := handler.generateToken(user.ID, "refresh", time.Now().Add(time.Hour*24*7))
+	refreshToken, err := handler.generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7))
 	if err != nil {
 		return nil, err
 	}
 
 	return &loginResponse{
-		UUID:         user.ID,
+		UUID:         user.ID.String(),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil

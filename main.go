@@ -1,6 +1,7 @@
 package main
 
 import (
+	"0700-express-web-api/ent"
 	"0700-express-web-api/internal/auth"
 	"encoding/json"
 	"fmt"
@@ -9,8 +10,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -23,16 +23,11 @@ func main() {
 		os.Getenv("DB_PORT"),
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	dbClient, err := ent.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	sqlDB, err := db.DB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer sqlDB.Close()
+	defer dbClient.Close()
 
 	r := mux.NewRouter()
 
@@ -40,23 +35,6 @@ func main() {
 	// ルーティング
 	// JSONでのレスポンスの書き込みの確認
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		sqlDB, err := db.DB()
-		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{
-				"status": "ng",
-				"error":  err.Error(),
-			})
-			return
-		}
-
-		if err := sqlDB.Ping(); err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{
-				"status": "ng",
-				"error":  err.Error(),
-			})
-			return
-		}
-
 		writeJSON(w, http.StatusOK, map[string]string{
 			"status": "ok",
 		})
@@ -64,7 +42,7 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authHandler := auth.CreateHandler(db, jwtSecret)
+	authHandler := auth.CreateHandler(dbClient, jwtSecret)
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 
 	addr := ":8080"
