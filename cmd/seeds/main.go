@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"0700-express-web-api/ent"
+	"0700-express-web-api/ent/project"
 	"0700-express-web-api/ent/user"
 
 	_ "github.com/lib/pq"
@@ -45,6 +46,16 @@ func main() {
 	if err := seedProject(ctx, dbClient, "english"); err != nil {
 		log.Fatal(err)
 	}
+
+	if err := seedTask(ctx, dbClient, "Learn Go", "programming"); err != nil {
+		log.Fatal(err)
+	}
+	if err := seedTask(ctx, dbClient, "Learn English", "english"); err != nil {
+		log.Fatal(err)
+	}
+	if err := seedTask(ctx, dbClient, "Learn Design", "design"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func seedUser(ctx context.Context, client *ent.Client) error {
@@ -80,17 +91,13 @@ func seedProject(ctx context.Context, client *ent.Client, slug string) error {
 		Exec(ctx)
 }
 
-//_, err = sqlDB.Exec(`
-//	INSERT INTO tasks (title, project_tasks)
-//	SELECT task.title, projects.id
-//	FROM (
-//	  VALUES
-//		('Learn Go', 'programming'),
-//		('Learn English', 'english'),
-//		('Learn Design', 'design')
-//	) AS task(title, project_slug)
-//	JOIN projects ON projects.slug = task.project_slug;
-//`)
-//if err != nil {
-//	log.Fatal(err)
-//}
+func seedTask(ctx context.Context, client *ent.Client, title string, projectSlug string) error {
+	return client.Task.
+		Create().
+		SetTitle(title).
+		SetProject(client.Project.
+			Query().
+			Where(project.SlugEQ(projectSlug)).
+			OnlyX(ctx)).
+		Exec(ctx)
+}

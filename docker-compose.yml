@@ -14,6 +14,7 @@ services:
       DB_USER: app_user
       DB_PASSWORD: password
       DB_NAME: express_db
+      JWT_SECRET: local-jwt-secret
 
   db:
     image: postgres:17-alpine
