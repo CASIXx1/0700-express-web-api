@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"0700-express-web-api/ent/project"
+	"0700-express-web-api/ent/task"
 	"0700-express-web-api/ent/user"
 	"context"
 	"errors"
@@ -73,7 +75,9 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			project.Table: project.ValidColumn,
+			task.Table:    task.ValidColumn,
+			user.Table:    user.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

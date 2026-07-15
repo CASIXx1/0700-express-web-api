@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 
+	"0700-express-web-api/ent"
+	"0700-express-web-api/ent/user"
+
+	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func main() {
+	ctx := context.Background()
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -20,29 +24,40 @@ func main() {
 		os.Getenv("DB_PORT"),
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	dbClient, err := ent.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer dbClient.Close()
 
-	sqlDB, err := db.DB()
-	if err != nil {
+	if err := seedUser(ctx, dbClient); err != nil {
 		log.Fatal(err)
 	}
 
-	defer sqlDB.Close()
-
-	_, err = sqlDB.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
-		    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			username VARCHAR(255) NOT NULL,
-			email VARCHAR(255) NOT NULL UNIQUE,
-			password VARCHAR(255) NOT NULL,
-		    status VARCHAR(255) NOT NULL DEFAULT 'active'
-		)
-	`)
-	if err != nil {
+	if err := seedProject(ctx, dbClient, "programming"); err != nil {
 		log.Fatal(err)
+	}
+
+	if err := seedProject(ctx, dbClient, "design"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := seedProject(ctx, dbClient, "english"); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func seedUser(ctx context.Context, client *ent.Client) error {
+	exists, err := client.User.
+		Query().
+		Where(user.EmailEQ("admin@example.com")).
+		Exist(ctx)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
@@ -50,61 +65,32 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_, err = sqlDB.Exec(`
-		INSERT INTO users (username, email, password)
-		VALUES ('admin', 'admin@example.com', $1)
-		ON CONFLICT (email) DO NOTHING;
-	`, string(hashedPassword))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = sqlDB.Exec(`
-		CREATE TABLE IF NOT EXISTS projects (
-		    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-		    slug VARCHAR(255) NOT NULL UNIQUE
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = sqlDB.Exec(`
-		INSERT INTO projects (slug)
-		VALUES ('programming'),
-		('english'),
-		('design')
-		ON CONFLICT (slug) DO NOTHING;
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = sqlDB.Exec(`
-		CREATE TABLE IF NOT EXISTS tasks (
-		    title VARCHAR(255) NOT NULL,
-		    status VARCHAR(255) NOT NULL DEFAULT 'scheduled',
-		    project_id UUID NOT NULL,
-		    FOREIGN KEY (project_id) REFERENCES projects(id),
-			UNIQUE (title, project_id)
-		)
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = sqlDB.Exec(`
-		INSERT INTO tasks (title, project_id)
-		SELECT task.title, projects.id
-		FROM (
-		  VALUES
-			('Learn Go', 'programming'),
-			('Learn English', 'english'),
-			('Learn Design', 'design')
-		) AS task(title, project_slug)
-		JOIN projects ON projects.slug = task.project_slug;
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return client.User.
+		Create().
+		SetUsername("admin").
+		SetEmail("admin@example.com").
+		SetPassword(string(hashedPassword)).
+		Exec(ctx)
 }
+
+func seedProject(ctx context.Context, client *ent.Client, slug string) error {
+	return client.Project.
+		Create().
+		SetSlug(slug).
+		Exec(ctx)
+}
+
+//_, err = sqlDB.Exec(`
+//	INSERT INTO tasks (title, project_tasks)
+//	SELECT task.title, projects.id
+//	FROM (
+//	  VALUES
+//		('Learn Go', 'programming'),
+//		('Learn English', 'english'),
+//		('Learn Design', 'design')
+//	) AS task(title, project_slug)
+//	JOIN projects ON projects.slug = task.project_slug;
+//`)
+//if err != nil {
+//	log.Fatal(err)
+//}

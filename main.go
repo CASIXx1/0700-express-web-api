@@ -3,6 +3,7 @@ package main
 import (
 	"0700-express-web-api/ent"
 	"0700-express-web-api/internal/auth"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -28,6 +29,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer dbClient.Close()
+
+	// Migration
+	if err := dbClient.Schema.Create(context.Background()); err != nil {
+		log.Fatal(err)
+	}
 
 	r := mux.NewRouter()
 
