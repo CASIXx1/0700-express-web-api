@@ -42,6 +42,8 @@ services:
       DB_PASSWORD: password
       DB_NAME: express_db
     command: go run ./cmd/seeds
+    profiles:
+      - seed
 
 volumes:
   postgres_data:
