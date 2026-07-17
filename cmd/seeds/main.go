@@ -78,8 +78,8 @@ func seedUser(ctx context.Context, client *ent.Client) error {
 
 	return client.User.
 		Create().
-		SetUsername("admin").
-		SetEmail("admin@example.com").
+		SetUsername("test").
+		SetEmail("test@example.com").
 		SetPassword(string(hashedPassword)).
 		Exec(ctx)
 }
