@@ -1,4 +1,4 @@
-package auth
+package controller
 
 import (
 	"0700-express-web-api/ent"
