@@ -1,0 +1,103 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	"0700-express-web-api/ent"
+	"0700-express-web-api/ent/project"
+	"0700-express-web-api/ent/user"
+
+	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
+)
+
+func main() {
+	ctx := context.Background()
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+
+	dbClient, err := ent.Open("postgres", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer dbClient.Close()
+
+	if err := seedUser(ctx, dbClient); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := seedProject(ctx, dbClient, "programming"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := seedProject(ctx, dbClient, "design"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := seedProject(ctx, dbClient, "english"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := seedTask(ctx, dbClient, "Learn Go", "programming"); err != nil {
+		log.Fatal(err)
+	}
+	if err := seedTask(ctx, dbClient, "Learn English", "english"); err != nil {
+		log.Fatal(err)
+	}
+	if err := seedTask(ctx, dbClient, "Learn Design", "design"); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func seedUser(ctx context.Context, client *ent.Client) error {
+	exists, err := client.User.
+		Query().
+		Where(user.EmailEQ("admin@example.com")).
+		Exist(ctx)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client.User.
+		Create().
+		SetUsername("test").
+		SetEmail("test@example.com").
+		SetPassword(string(hashedPassword)).
+		Exec(ctx)
+}
+
+func seedProject(ctx context.Context, client *ent.Client, slug string) error {
+	return client.Project.
+		Create().
+		SetSlug(slug).
+		Exec(ctx)
+}
+
+func seedTask(ctx context.Context, client *ent.Client, title string, projectSlug string) error {
+	return client.Task.
+		Create().
+		SetTitle(title).
+		SetProject(client.Project.
+			Query().
+			Where(project.SlugEQ(projectSlug)).
+			OnlyX(ctx)).
+		Exec(ctx)
+}

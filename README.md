@@ -68,8 +68,8 @@ Hint: 方向性のチェックを行う際は、プルリクエストを使用�
 
 仕様に則っているかどうかは、[./test](./test) ディレクトリにあるテストコードを実行して確認してください。
 
-1. `npm run db:seed`
-2. `npm run dev` でサーバ起動
+1. `make db/seed`
+2. `docker compose up --build` でサーバ起動
 
 の手順を踏んだあとに、test ディレクトリにあるテストコードを実行して、テストが全て成功すれば仕様に則っていると判断できます。
 詳細は [./test/README.md](./test/README.md) を確認してください。
