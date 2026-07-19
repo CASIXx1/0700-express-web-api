@@ -667,7 +667,7 @@ func (m *TaskMutation) ProjectID() (id uuid.UUID, exists bool) {
 
 // ProjectIDs returns the "project" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProjectID instead. It exists only for internal usage by the builders.
+// ProjectID instead. It exists only for interface usage by the builders.
 func (m *TaskMutation) ProjectIDs() (ids []uuid.UUID) {
 	if id := m.project; id != nil {
 		ids = append(ids, *id)

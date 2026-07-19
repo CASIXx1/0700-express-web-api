@@ -1,10 +1,8 @@
-package controller
+package handler
 
 import (
-	"0700-express-web-api/ent"
-	entuser "0700-express-web-api/ent/user"
+	"0700-express-web-api/interface/repository"
 
-	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -17,14 +15,14 @@ import (
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
 type Handler struct {
-	dbClient  *ent.Client
-	jwtSecret string
+	authRepository *repository.AuthRepository
+	jwtSecret      string
 }
 
-func CreateHandler(dbClient *ent.Client, jwtSecret string) *Handler {
+func CreateHandler(authRepository *repository.AuthRepository, jwtSecret string) *Handler {
 	return &Handler{
-		dbClient:  dbClient,
-		jwtSecret: jwtSecret,
+		authRepository: authRepository,
+		jwtSecret:      jwtSecret,
 	}
 }
 
@@ -37,14 +35,6 @@ type loginResponse struct {
 	UUID         string `json:"uuid"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
-}
-
-type user struct {
-	ID       string `gorm:"column:id"`
-	Username string `gorm:"column:username"`
-	Email    string `gorm:"column:email"`
-	Password string `gorm:"column:password"`
-	Status   string `gorm:"column:status"`
 }
 
 func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request) {
@@ -68,11 +58,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 }
 
 func (handler *Handler) login(email, password string) (*loginResponse, error) {
-	user, err := handler.dbClient.User.
-		Query().
-		Where(entuser.EmailEQ(email)).
-		First(context.Background())
-
+	user, err := handler.authRepository.FindUserByEmail(email)
 	if err != nil {
 		return nil, err
 	}

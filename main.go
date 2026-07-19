@@ -2,7 +2,8 @@ package main
 
 import (
 	"0700-express-web-api/ent"
-	"0700-express-web-api/internal/controller"
+	"0700-express-web-api/interface/handler"
+	"0700-express-web-api/interface/repository"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -48,7 +49,9 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authHandler := controller.CreateHandler(dbClient, jwtSecret)
+	authRepository := repository.CreateAuthRepository(dbClient)
+	authHandler := handler.CreateHandler(authRepository, jwtSecret)
+
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 
 	addr := ":8080"
