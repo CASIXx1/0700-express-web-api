@@ -13,6 +13,7 @@ import (
 )
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
+var ErrUserAlreadyExists = errors.New("user already exists")
 
 type Handler struct {
 	authRepository *repository.AuthRepository
@@ -31,7 +32,21 @@ type loginRequest struct {
 	Password string `json:"password"`
 }
 
+type SignUpRequest struct {
+	Username             string `json:"username"`
+	Email                string `json:"email"`
+	EmailConfirmation    string `json:"email_confirmation"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
+}
+
 type loginResponse struct {
+	UUID         string `json:"uuid"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
+type signUpResponse struct {
 	UUID         string `json:"uuid"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -57,6 +72,27 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 	})
 }
 
+func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request) {
+	var signUp SignUpRequest
+	if err := json.NewDecoder(Request.Body).Decode(&signUp); err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	result, err := handler.signUp(signUp.Username, signUp.Email, signUp.Password)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	json.NewEncoder(writer).Encode(map[string]any{
+		"data": result,
+	})
+}
+
+// ドメイン?
 func (handler *Handler) login(email, password string) (*loginResponse, error) {
 	user, err := handler.authRepository.FindUserByEmail(email)
 	if err != nil {
@@ -78,6 +114,39 @@ func (handler *Handler) login(email, password string) (*loginResponse, error) {
 	}
 
 	return &loginResponse{
+		UUID:         user.ID.String(),
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (handler *Handler) signUp(username, email, password string) (*signUpResponse, error) {
+	user, err := handler.authRepository.FindUserByEmail(email)
+	if user != nil {
+		return nil, ErrUserAlreadyExists
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err = handler.authRepository.CreateUser(username, email, string(hashedPassword))
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, err := handler.generateToken(user.ID.String(), "access", time.Now().Add(time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := handler.generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7))
+	if err != nil {
+		return nil, err
+	}
+
+	return &signUpResponse{
 		UUID:         user.ID.String(),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

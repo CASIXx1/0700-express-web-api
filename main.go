@@ -53,6 +53,7 @@ func main() {
 	authHandler := handler.CreateHandler(authRepository, jwtSecret)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
+	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)

@@ -22,3 +22,12 @@ func (repository *AuthRepository) FindUserByEmail(email string) (*ent.User, erro
 		Where(entuser.EmailEQ(email)).
 		First(context.Background())
 }
+
+func (repository *AuthRepository) CreateUser(username, email, hashedPassword string) (*ent.User, error) {
+	return repository.dbClient.User.
+		Create().
+		SetUsername(username).
+		SetEmail(email).
+		SetPassword(hashedPassword).
+		Save(context.Background())
+}
