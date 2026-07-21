@@ -81,6 +81,11 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 
 	result, err := handler.signUp(signUp.Username, signUp.Email, signUp.Password)
 	if err != nil {
+		if errors.Is(err, ErrUserAlreadyExists) {
+			writer.WriteHeader(http.StatusConflict)
+			return
+		}
+
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
