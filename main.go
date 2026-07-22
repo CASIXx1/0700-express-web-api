@@ -4,6 +4,7 @@ import (
 	"0700-express-web-api/ent"
 	"0700-express-web-api/interface/handler"
 	"0700-express-web-api/interface/repository"
+	"0700-express-web-api/usecase"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -50,7 +51,8 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	authRepository := repository.CreateAuthRepository(dbClient)
-	authHandler := handler.CreateHandler(authRepository, jwtSecret)
+	authUsecase := usecase.CreateAuthUsecase(authRepository, jwtSecret)
+	authHandler := handler.CreateHandler(authRepository, authUsecase, jwtSecret)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)

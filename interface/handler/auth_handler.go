@@ -2,6 +2,7 @@ package handler
 
 import (
 	"0700-express-web-api/interface/repository"
+	"0700-express-web-api/usecase"
 
 	"encoding/json"
 	"errors"
@@ -17,12 +18,14 @@ var ErrUserAlreadyExists = errors.New("user already exists")
 
 type Handler struct {
 	authRepository *repository.AuthRepository
+	authUsecase    *usecase.AuthUsecase
 	jwtSecret      string
 }
 
-func CreateHandler(authRepository *repository.AuthRepository, jwtSecret string) *Handler {
+func CreateHandler(authRepository *repository.AuthRepository, authUsecase *usecase.AuthUsecase, jwtSecret string) *Handler {
 	return &Handler{
 		authRepository: authRepository,
+		authUsecase:    authUsecase,
 		jwtSecret:      jwtSecret,
 	}
 }
@@ -59,7 +62,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 		return
 	}
 
-	result, err := handler.login(login.Email, login.Password)
+	result, err := handler.authUsecase.Login(login.Email, login.Password)
 	if err != nil {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
@@ -95,34 +98,6 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	json.NewEncoder(writer).Encode(map[string]any{
 		"data": result,
 	})
-}
-
-// ドメイン?
-func (handler *Handler) login(email, password string) (*loginResponse, error) {
-	user, err := handler.authRepository.FindUserByEmail(email)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, ErrInvalidCredentials
-	}
-
-	accessToken, err := handler.generateToken(user.ID.String(), "access", time.Now().Add(time.Hour))
-	if err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := handler.generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7))
-	if err != nil {
-		return nil, err
-	}
-
-	return &loginResponse{
-		UUID:         user.ID.String(),
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}, nil
 }
 
 func (handler *Handler) signUp(username, email, password string) (*signUpResponse, error) {
