@@ -17,16 +17,16 @@ type AuthUsecase struct {
 	jwtSecret      string
 }
 
-type loginResponse struct {
-	UUID         string `json:"uuid"`
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+type loginResult struct {
+	UUID         string
+	AccessToken  string
+	RefreshToken string
 }
 
-type signUpResponse struct {
-	UUID         string `json:"uuid"`
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+type signUpResult struct {
+	UUID         string
+	AccessToken  string
+	RefreshToken string
 }
 
 func CreateAuthUsecase(authRepository *repository.AuthRepository, jwtSecret string) *AuthUsecase {
@@ -36,7 +36,7 @@ func CreateAuthUsecase(authRepository *repository.AuthRepository, jwtSecret stri
 	}
 }
 
-func (usecase *AuthUsecase) Login(email, password string) (*loginResponse, error) {
+func (usecase *AuthUsecase) Login(email, password string) (*loginResult, error) {
 	user, err := usecase.authRepository.FindUserByEmail(email)
 	if err != nil {
 		return nil, err
@@ -56,14 +56,14 @@ func (usecase *AuthUsecase) Login(email, password string) (*loginResponse, error
 		return nil, err
 	}
 
-	return &loginResponse{
+	return &loginResult{
 		UUID:         user.ID.String(),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
-func (usecase *AuthUsecase) SignUp(username, email, password string) (*signUpResponse, error) {
+func (usecase *AuthUsecase) SignUp(username, email, password string) (*signUpResult, error) {
 	user, err := usecase.authRepository.FindUserByEmail(email)
 	if user != nil {
 		return nil, ErrUserAlreadyExists
@@ -89,7 +89,7 @@ func (usecase *AuthUsecase) SignUp(username, email, password string) (*signUpRes
 		return nil, err
 	}
 
-	return &signUpResponse{
+	return &signUpResult{
 		UUID:         user.ID.String(),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
