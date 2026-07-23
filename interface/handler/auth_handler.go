@@ -1,32 +1,23 @@
 package handler
 
 import (
-	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/usecase"
 
 	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
-
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 var ErrUserAlreadyExists = errors.New("user already exists")
 
 type Handler struct {
-	authRepository *repository.AuthRepository
-	authUsecase    *usecase.AuthUsecase
-	jwtSecret      string
+	authUsecase *usecase.AuthUsecase
 }
 
-func CreateHandler(authRepository *repository.AuthRepository, authUsecase *usecase.AuthUsecase, jwtSecret string) *Handler {
+func CreateHandler(authUsecase *usecase.AuthUsecase) *Handler {
 	return &Handler{
-		authRepository: authRepository,
-		authUsecase:    authUsecase,
-		jwtSecret:      jwtSecret,
+		authUsecase: authUsecase,
 	}
 }
 
@@ -82,7 +73,7 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 		return
 	}
 
-	result, err := handler.signUp(signUp.Username, signUp.Email, signUp.Password)
+	result, err := handler.authUsecase.SignUp(signUp.Username, signUp.Email, signUp.Password)
 	if err != nil {
 		if errors.Is(err, ErrUserAlreadyExists) {
 			writer.WriteHeader(http.StatusConflict)
@@ -98,50 +89,4 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	json.NewEncoder(writer).Encode(map[string]any{
 		"data": result,
 	})
-}
-
-func (handler *Handler) signUp(username, email, password string) (*signUpResponse, error) {
-	user, err := handler.authRepository.FindUserByEmail(email)
-	if user != nil {
-		return nil, ErrUserAlreadyExists
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err = handler.authRepository.CreateUser(username, email, string(hashedPassword))
-	if err != nil {
-		return nil, err
-	}
-
-	accessToken, err := handler.generateToken(user.ID.String(), "access", time.Now().Add(time.Hour))
-	if err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := handler.generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7))
-	if err != nil {
-		return nil, err
-	}
-
-	return &signUpResponse{
-		UUID:         user.ID.String(),
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}, nil
-}
-
-func (handler *Handler) generateToken(userId string, tokenType string, expiresAt time.Time) (string, error) {
-	claims := jwt.MapClaims{
-		"sub":  userId,
-		"type": tokenType,
-		"exp":  expiresAt.Unix(),
-		"iat":  time.Now().Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString([]byte(handler.jwtSecret))
 }

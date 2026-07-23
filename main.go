@@ -52,7 +52,7 @@ func main() {
 
 	authRepository := repository.CreateAuthRepository(dbClient)
 	authUsecase := usecase.CreateAuthUsecase(authRepository, jwtSecret)
-	authHandler := handler.CreateHandler(authRepository, authUsecase, jwtSecret)
+	authHandler := handler.CreateHandler(authUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
