@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"0700-express-web-api/interface/repository"
+	"context"
 	"errors"
 	"time"
 
@@ -13,7 +14,7 @@ var ErrInvalidCredentials = errors.New("invalid credentials")
 var ErrUserAlreadyExists = errors.New("user already exists")
 
 type AuthUsecase struct {
-	authRepository *repository.AuthRepository
+	authRepository *repository.UserRepository
 	jwtSecret      string
 }
 
@@ -23,15 +24,15 @@ type AuthResult struct {
 	RefreshToken string
 }
 
-func CreateAuthUsecase(authRepository *repository.AuthRepository, jwtSecret string) *AuthUsecase {
+func CreateAuthUsecase(authRepository *repository.UserRepository, jwtSecret string) *AuthUsecase {
 	return &AuthUsecase{
 		authRepository: authRepository,
 		jwtSecret:      jwtSecret,
 	}
 }
 
-func (usecase *AuthUsecase) Login(email, password string) (*AuthResult, error) {
-	user, err := usecase.authRepository.FindUserByEmail(email)
+func (usecase *AuthUsecase) Login(ctx context.Context, email, password string) (*AuthResult, error) {
+	user, err := usecase.authRepository.FindUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +58,8 @@ func (usecase *AuthUsecase) Login(email, password string) (*AuthResult, error) {
 	}, nil
 }
 
-func (usecase *AuthUsecase) SignUp(username, email, password string) (*AuthResult, error) {
-	user, err := usecase.authRepository.FindUserByEmail(email)
+func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, password string) (*AuthResult, error) {
+	user, err := usecase.authRepository.FindUserByEmail(ctx, email)
 	if user != nil {
 		return nil, ErrUserAlreadyExists
 	}
@@ -68,7 +69,7 @@ func (usecase *AuthUsecase) SignUp(username, email, password string) (*AuthResul
 		return nil, err
 	}
 
-	user, err = usecase.authRepository.CreateUser(username, email, string(hashedPassword))
+	user, err = usecase.authRepository.CreateUser(ctx, username, email, string(hashedPassword))
 	if err != nil {
 		return nil, err
 	}

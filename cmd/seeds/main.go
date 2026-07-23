@@ -29,6 +29,12 @@ func main() {
 	}
 	defer dbClient.Close()
 
+	tx, err := dbClient.Tx(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback()
+
 	seeds := seed.NewSeeder(
 		seed.NewUserSeeder(),
 		seed.NewProjectSeeder(),
@@ -36,6 +42,10 @@ func main() {
 	)
 
 	if err := seeds.Run(ctx, dbClient); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := tx.Commit(); err != nil {
 		log.Fatal(err)
 	}
 }

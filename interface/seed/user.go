@@ -2,9 +2,8 @@ package seed
 
 import (
 	"0700-express-web-api/ent"
-	"0700-express-web-api/ent/user"
+	"0700-express-web-api/interface/repository"
 	"context"
-	"log"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,27 +15,22 @@ func NewUserSeeder() *UserSeeder {
 }
 
 func (seeder *UserSeeder) Run(ctx context.Context, client *ent.Client) error {
-	exists, err := client.User.
-		Query().
-		Where(user.EmailEQ("admin@example.com")).
-		Exist(ctx)
-	if err != nil {
-		return err
-	}
+	userRepository := repository.CreateUserRepository(client)
 
-	if exists {
+	exists, err := userRepository.FindUserByEmail(ctx, "test@example.com")
+	if exists != nil {
 		return nil
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	return client.User.
-		Create().
-		SetUsername("test").
-		SetEmail("test@example.com").
-		SetPassword(string(hashedPassword)).
-		Exec(ctx)
+	_, err = userRepository.CreateUser(ctx, "test", "test@example.com", string(hashedPassword))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

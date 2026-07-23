@@ -50,7 +50,7 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authRepository := repository.CreateAuthRepository(dbClient)
+	authRepository := repository.CreateUserRepository(dbClient)
 	authUsecase := usecase.CreateAuthUsecase(authRepository, jwtSecret)
 	authHandler := handler.CreateHandler(authUsecase)
 
