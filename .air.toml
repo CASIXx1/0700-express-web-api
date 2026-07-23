@@ -4,3 +4,5 @@ tmp_dir = "tmp"
 [build]
 cmd = "go build -o ./tmp/server ."
 bin = "./tmp/server"
+include_ext = ["go"]
+exclude_dir = ["tmp", "test", "node_modules"]
