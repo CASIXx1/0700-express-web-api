@@ -10,7 +10,7 @@ type TaskRepository struct {
 	client *ent.Client
 }
 
-func CreateTaskRepository(client *ent.Client) *TaskRepository {
+func NewTaskRepository(client *ent.Client) *TaskRepository {
 	return &TaskRepository{
 		client: client,
 	}

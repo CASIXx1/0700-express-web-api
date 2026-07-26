@@ -10,7 +10,7 @@ type UserRepository struct {
 	dbClient *ent.Client
 }
 
-func CreateUserRepository(dbClient *ent.Client) *UserRepository {
+func NewUserRepository(dbClient *ent.Client) *UserRepository {
 	return &UserRepository{
 		dbClient: dbClient,
 	}

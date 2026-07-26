@@ -24,7 +24,7 @@ type AuthResult struct {
 	RefreshToken string
 }
 
-func CreateAuthUsecase(authRepository *repository.UserRepository, jwtSecret string) *AuthUsecase {
+func NewAuthUsecase(authRepository *repository.UserRepository, jwtSecret string) *AuthUsecase {
 	return &AuthUsecase{
 		authRepository: authRepository,
 		jwtSecret:      jwtSecret,

@@ -13,7 +13,7 @@ type Handler struct {
 	authUsecase *usecase.AuthUsecase
 }
 
-func CreateHandler(authUsecase *usecase.AuthUsecase) *Handler {
+func NewHandler(authUsecase *usecase.AuthUsecase) *Handler {
 	return &Handler{
 		authUsecase: authUsecase,
 	}

@@ -50,9 +50,9 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authRepository := repository.CreateUserRepository(dbClient)
-	authUsecase := usecase.CreateAuthUsecase(authRepository, jwtSecret)
-	authHandler := handler.CreateHandler(authUsecase)
+	authRepository := repository.NewUserRepository(dbClient)
+	authUsecase := usecase.NewAuthUsecase(authRepository, jwtSecret)
+	authHandler := handler.NewHandler(authUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)

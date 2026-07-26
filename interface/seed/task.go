@@ -13,7 +13,7 @@ func NewTaskSeeder() *TaskSeeder {
 }
 
 func (seeder *TaskSeeder) Run(ctx context.Context, client *ent.Client) error {
-	taskRepository := repository.CreateTaskRepository(client)
+	taskRepository := repository.NewTaskRepository(client)
 
 	if err := taskRepository.CreateTask(ctx, "Learn Go", "programming"); err != nil {
 		return err

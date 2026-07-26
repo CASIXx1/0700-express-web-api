@@ -13,7 +13,7 @@ func NewProjectSeeder() *ProjectSeeder {
 }
 
 func (seeder *ProjectSeeder) Run(ctx context.Context, client *ent.Client) error {
-	projectRepository := repository.CreateProjectRepository(client)
+	projectRepository := repository.NewProjectRepository(client)
 
 	if err := projectRepository.CreateProject(ctx, "programming"); err != nil {
 		return err

@@ -15,7 +15,7 @@ func NewUserSeeder() *UserSeeder {
 }
 
 func (seeder *UserSeeder) Run(ctx context.Context, client *ent.Client) error {
-	userRepository := repository.CreateUserRepository(client)
+	userRepository := repository.NewUserRepository(client)
 
 	exists, err := userRepository.FindUserByEmail(ctx, "test@example.com")
 	if exists != nil {

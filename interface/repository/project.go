@@ -9,7 +9,7 @@ type ProjectRepository struct {
 	client *ent.Client
 }
 
-func CreateProjectRepository(client *ent.Client) *ProjectRepository {
+func NewProjectRepository(client *ent.Client) *ProjectRepository {
 	return &ProjectRepository{client}
 }
 
