@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"0700-express-web-api/interface/repository"
+	"0700-express-web-api/ent"
 	"context"
 	"errors"
 	"time"
@@ -14,7 +14,7 @@ var ErrInvalidCredentials = errors.New("invalid credentials")
 var ErrUserAlreadyExists = errors.New("user already exists")
 
 type AuthUsecase struct {
-	authRepository *repository.UserRepository
+	userRepository UserRepository
 	jwtSecret      string
 }
 
@@ -24,15 +24,20 @@ type AuthResult struct {
 	RefreshToken string
 }
 
-func NewAuthUsecase(authRepository *repository.UserRepository, jwtSecret string) *AuthUsecase {
+type UserRepository interface {
+	FindUserByEmail(ctx context.Context, email string) (*ent.User, error)
+	CreateUser(ctx context.Context, username, email, hashedPassword string) (*ent.User, error)
+}
+
+func NewAuthUsecase(userRepository UserRepository, jwtSecret string) *AuthUsecase {
 	return &AuthUsecase{
-		authRepository: authRepository,
+		userRepository: userRepository,
 		jwtSecret:      jwtSecret,
 	}
 }
 
 func (usecase *AuthUsecase) Login(ctx context.Context, email, password string) (*AuthResult, error) {
-	user, err := usecase.authRepository.FindUserByEmail(ctx, email)
+	user, err := usecase.userRepository.FindUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +64,7 @@ func (usecase *AuthUsecase) Login(ctx context.Context, email, password string) (
 }
 
 func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, password string) (*AuthResult, error) {
-	user, err := usecase.authRepository.FindUserByEmail(ctx, email)
+	user, err := usecase.userRepository.FindUserByEmail(ctx, email)
 	if user != nil {
 		return nil, ErrUserAlreadyExists
 	}
@@ -69,7 +74,7 @@ func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, passwor
 		return nil, err
 	}
 
-	user, err = usecase.authRepository.CreateUser(ctx, username, email, string(hashedPassword))
+	user, err = usecase.userRepository.CreateUser(ctx, username, email, string(hashedPassword))
 	if err != nil {
 		return nil, err
 	}
