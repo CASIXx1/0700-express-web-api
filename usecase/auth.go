@@ -46,12 +46,12 @@ func (usecase *AuthUsecase) Login(ctx context.Context, email, password string) (
 		return nil, ErrInvalidCredentials
 	}
 
-	accessToken, err := usecase.generateToken(user.ID.String(), "access", time.Now().Add(time.Hour))
+	accessToken, err := generateToken(user.ID.String(), "access", time.Now().Add(time.Hour), usecase.jwtSecret)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := usecase.generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7))
+	refreshToken, err := generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7), usecase.jwtSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +79,12 @@ func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, passwor
 		return nil, err
 	}
 
-	accessToken, err := usecase.generateToken(user.ID.String(), "access", time.Now().Add(time.Hour))
+	accessToken, err := generateToken(user.ID.String(), "access", time.Now().Add(time.Hour), usecase.jwtSecret)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := usecase.generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7))
+	refreshToken, err := generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7), usecase.jwtSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, passwor
 	}, nil
 }
 
-func (usecase *AuthUsecase) generateToken(userId string, tokenType string, expiresAt time.Time) (string, error) {
+func generateToken(userId string, tokenType string, expiresAt time.Time, jwtSecret string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  userId,
 		"type": tokenType,
@@ -106,5 +106,5 @@ func (usecase *AuthUsecase) generateToken(userId string, tokenType string, expir
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte(usecase.jwtSecret))
+	return token.SignedString([]byte(jwtSecret))
 }
