@@ -1,4 +1,4 @@
-package response
+package handler
 
 type LoginResponse struct {
 	UUID         string `json:"uuid"`
