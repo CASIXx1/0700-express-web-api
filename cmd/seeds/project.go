@@ -1,9 +1,10 @@
-package seed
+package main
 
 import (
+	"context"
+
 	"0700-express-web-api/ent"
 	"0700-express-web-api/interface/repository"
-	"context"
 )
 
 type ProjectSeeder struct{}
