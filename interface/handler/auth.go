@@ -40,11 +40,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 		RefreshToken: result.RefreshToken,
 	}
 
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusOK)
-	json.NewEncoder(writer).Encode(map[string]any{
-		"data": loginResponse,
-	})
+	writeResponse(writer, http.StatusOK, loginResponse)
 }
 
 func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request) {
@@ -73,9 +69,13 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 		RefreshToken: result.RefreshToken,
 	}
 
+	writeResponse(writer, http.StatusOK, signUpResponse)
+}
+
+func writeResponse(writer http.ResponseWriter, statusCode int, response any) {
 	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusOK)
+	writer.WriteHeader(statusCode)
 	json.NewEncoder(writer).Encode(map[string]any{
-		"data": signUpResponse,
+		"data": response,
 	})
 }
