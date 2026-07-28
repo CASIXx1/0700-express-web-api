@@ -78,7 +78,7 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	result, err := handler.authUsecase.SignUp(ctx, signUp.Username, signUp.Email, signUp.Password)
 	if err != nil {
 		if errors.Is(err, usecase.ErrUserAlreadyExists) {
-			writer.WriteHeader(http.StatusConflict)
+			writeErrorResponse(writer, http.StatusConflict, err)
 			return
 		}
 
@@ -98,7 +98,18 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 func writeResponse(writer http.ResponseWriter, statusCode int, response any) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
+	// ここがanyになってるので、気にしても仕方ない
+	// json形式に変換するか
+	// エラーの時も一緒に返せると良い
 	json.NewEncoder(writer).Encode(map[string]any{
 		"data": response,
+	})
+}
+
+func writeErrorResponse(writer http.ResponseWriter, statusCode int, err error) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(statusCode)
+	json.NewEncoder(writer).Encode(map[string]any{
+		"error": err.Error(),
 	})
 }
