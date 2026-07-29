@@ -4,6 +4,7 @@ import (
 	"0700-express-web-api/ent"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,8 +15,9 @@ var ErrInvalidCredentials = errors.New("invalid credentials")
 var ErrUserAlreadyExists = errors.New("user already exists")
 
 type AuthUsecase struct {
-	userRepository UserRepository
-	jwtSecret      string
+	userRepository   UserRepository
+	passwordVerifier passwordVerifier
+	tokenGenerator   tokenGenerator
 }
 
 type AuthResult struct {
@@ -29,10 +31,20 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, username, email, hashedPassword string) (*ent.User, error)
 }
 
-func NewAuthUsecase(userRepository UserRepository, jwtSecret string) *AuthUsecase {
+type passwordVerifier interface {
+	Verify(userPassword, requestPassword string) error
+}
+
+type tokenGenerator interface {
+	GenerateAccessToken(userIdentifier string) (string, error)
+	GenerateRefreshToken(userIdentifier string) (string, error)
+}
+
+func NewAuthUsecase(userRepository UserRepository, passwordVerifier passwordVerifier, tokenGenerator tokenGenerator) *AuthUsecase {
 	return &AuthUsecase{
-		userRepository: userRepository,
-		jwtSecret:      jwtSecret,
+		userRepository:   userRepository,
+		passwordVerifier: passwordVerifier,
+		tokenGenerator:   tokenGenerator,
 	}
 }
 
@@ -42,18 +54,18 @@ func (usecase *AuthUsecase) Login(ctx context.Context, email, password string) (
 		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if err := usecase.passwordVerifier.Verify(user.Password, password); err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	accessToken, err := generateToken(user.ID.String(), "access", time.Now().Add(time.Hour), usecase.jwtSecret)
+	accessToken, err := usecase.tokenGenerator.GenerateAccessToken(user.ID.String())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	refreshToken, err := generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7), usecase.jwtSecret)
+	refreshToken, err := usecase.tokenGenerator.GenerateRefreshToken(user.ID.String())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
 	return &AuthResult{
@@ -79,12 +91,12 @@ func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, passwor
 		return nil, err
 	}
 
-	accessToken, err := generateToken(user.ID.String(), "access", time.Now().Add(time.Hour), usecase.jwtSecret)
+	accessToken, err := usecase.tokenGenerator.GenerateAccessToken(user.ID.String())
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := generateToken(user.ID.String(), "refresh", time.Now().Add(time.Hour*24*7), usecase.jwtSecret)
+	refreshToken, err := usecase.tokenGenerator.GenerateRefreshToken(user.ID.String())
 	if err != nil {
 		return nil, err
 	}
