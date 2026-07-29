@@ -6,21 +6,21 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type TokenGenerator struct {
+type tokenGenerator struct {
 	secret string
 }
 
-func NewTokenGenerator(secret string) *TokenGenerator {
-	return &TokenGenerator{
+func NewTokenGenerator(secret string) *tokenGenerator {
+	return &tokenGenerator{
 		secret: secret,
 	}
 }
 
-func (tokenGenerator *TokenGenerator) GenerateAccessToken(userId string) (string, error) {
+func (tokenGenerator *tokenGenerator) GenerateAccessToken(userId string) (string, error) {
 	return generateToken(userId, "access", time.Now().Add(time.Hour), tokenGenerator.secret)
 }
 
-func (tokenGenerator *TokenGenerator) GenerateRefreshToken(userId string) (string, error) {
+func (tokenGenerator *tokenGenerator) GenerateRefreshToken(userId string) (string, error) {
 	return generateToken(userId, "refresh", time.Now().Add(time.Hour*24*7), tokenGenerator.secret)
 }
 

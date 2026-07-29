@@ -9,7 +9,7 @@ import (
 
 type projectSeeder struct{}
 
-func NewProjectSeeder() Seeder {
+func newProjectSeeder() seeder {
 	return &projectSeeder{}
 }
 

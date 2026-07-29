@@ -35,11 +35,7 @@ func main() {
 	}
 	defer tx.Rollback()
 
-	seeds := seed.NewSeeder(
-		seed.NewUserSeeder(),
-		seed.NewProjectSeeder(),
-		seed.NewTaskSeeder(),
-	)
+	seeds := seed.NewSeeder()
 
 	if err := seeds.Run(ctx, tx.Client()); err != nil {
 		log.Fatal(err)

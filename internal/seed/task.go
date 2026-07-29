@@ -9,7 +9,7 @@ import (
 
 type taskSeeder struct{}
 
-func NewTaskSeeder() Seeder {
+func newTaskSeeder() seeder {
 	return &taskSeeder{}
 }
 

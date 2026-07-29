@@ -6,17 +6,21 @@ import (
 	"0700-express-web-api/ent"
 )
 
-type Seeder interface {
+type seeder interface {
 	Run(ctx context.Context, client *ent.Client) error
 }
 
 type defaultSeeder struct {
-	seeders []Seeder
+	seeders []seeder
 }
 
-func NewSeeder(seeders ...Seeder) *defaultSeeder {
+func NewSeeder() *defaultSeeder {
 	return &defaultSeeder{
-		seeders: seeders,
+		seeders: []seeder{
+			newUserSeeder(),
+			newProjectSeeder(),
+			newTaskSeeder(),
+		},
 	}
 }
 

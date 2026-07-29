@@ -5,9 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -106,17 +104,4 @@ func (usecase *AuthUsecase) SignUp(ctx context.Context, username, email, passwor
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
-}
-
-func generateToken(userId string, tokenType string, expiresAt time.Time, jwtSecret string) (string, error) {
-	claims := jwt.MapClaims{
-		"sub":  userId,
-		"type": tokenType,
-		"exp":  expiresAt.Unix(),
-		"iat":  time.Now().Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString([]byte(jwtSecret))
 }

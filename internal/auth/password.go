@@ -4,13 +4,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type PasswordGenerator struct {
+type passwordGenerator struct {
 }
 
-func NewPasswordGenerator() *PasswordGenerator {
-	return &PasswordGenerator{}
+func NewPasswordGenerator() *passwordGenerator {
+	return &passwordGenerator{}
 }
 
-func (passwordGenerator *PasswordGenerator) Verify(hashedPassword, password string) error {
+func (passwordGenerator *passwordGenerator) Verify(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

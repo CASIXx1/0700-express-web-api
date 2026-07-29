@@ -11,7 +11,7 @@ import (
 
 type userSeeder struct{}
 
-func NewUserSeeder() Seeder {
+func newUserSeeder() seeder {
 	return &userSeeder{}
 }
 
