@@ -4,6 +4,7 @@ import (
 	"0700-express-web-api/usecase"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 )
 
@@ -55,23 +56,29 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 	ctx := Request.Context()
 
 	if err := json.NewDecoder(Request.Body).Decode(&loginRequest); err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
+		writeResponse(writer, http.StatusBadRequest, errorResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	result, err := handler.authUsecase.Login(ctx, loginRequest.Email, loginRequest.Password)
 	if err != nil {
-		writer.WriteHeader(http.StatusUnauthorized)
+		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	loginResponse := loginResponse{
+	loginRes := loginResponse{
 		UUID:         result.UUID,
 		AccessToken:  result.AccessToken,
 		RefreshToken: result.RefreshToken,
 	}
 
-	writeResponse(writer, http.StatusOK, loginResponse)
+	writeResponse(writer, http.StatusOK, normalResponse[loginResponse]{
+		Data: loginRes,
+	})
 }
 
 func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request) {
@@ -79,45 +86,43 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	ctx := Request.Context()
 
 	if err := json.NewDecoder(Request.Body).Decode(&signUp); err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
+		writeResponse(writer, http.StatusBadRequest, errorResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	result, err := handler.authUsecase.SignUp(ctx, signUp.Username, signUp.Email, signUp.Password)
 	if err != nil {
 		if errors.Is(err, usecase.ErrUserAlreadyExists) {
-			writeErrorResponse(writer, http.StatusConflict, err)
+			writeResponse(writer, http.StatusConflict, errorResponse{
+				Message: err.Error(),
+			})
 			return
 		}
 
-		writer.WriteHeader(http.StatusBadRequest)
+		writeResponse(writer, http.StatusBadRequest, errorResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	signUpResponse := signUpResponse{
+	signUpRes := signUpResponse{
 		UUID:         result.UUID,
 		AccessToken:  result.AccessToken,
 		RefreshToken: result.RefreshToken,
 	}
 
-	writeResponse(writer, http.StatusOK, signUpResponse)
-}
-
-func writeResponse(writer http.ResponseWriter, statusCode int, response any) {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(statusCode)
-	// ここがanyになってるので、気にしても仕方ない
-	// json形式に変換するか
-	// エラーの時も一緒に返せると良い
-	json.NewEncoder(writer).Encode(map[string]any{
-		"data": response,
+	writeResponse(writer, http.StatusOK, normalResponse[signUpResponse]{
+		Data: signUpRes,
 	})
 }
 
-func writeErrorResponse(writer http.ResponseWriter, statusCode int, err error) {
+func writeResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
-	json.NewEncoder(writer).Encode(map[string]any{
-		"error": err.Error(),
-	})
+
+	if err := json.NewEncoder(writer).Encode(response); err != nil {
+		log.Printf("failed to encode response: %v", err)
+	}
 }
