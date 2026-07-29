@@ -1,4 +1,4 @@
-package main
+package seed
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 	"0700-express-web-api/interface/repository"
 )
 
-type TaskSeeder struct{}
+type taskSeeder struct{}
 
-func NewTaskSeeder() *TaskSeeder {
-	return &TaskSeeder{}
+func NewTaskSeeder() Seeder {
+	return &taskSeeder{}
 }
 
-func (seeder *TaskSeeder) Run(ctx context.Context, client *ent.Client) error {
+func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	taskRepository := repository.NewTaskRepository(client)
 
 	if err := taskRepository.CreateTask(ctx, "Learn Go", "programming"); err != nil {

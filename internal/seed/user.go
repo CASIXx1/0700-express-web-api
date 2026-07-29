@@ -1,4 +1,4 @@
-package main
+package seed
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserSeeder struct{}
+type userSeeder struct{}
 
-func NewUserSeeder() *UserSeeder {
-	return &UserSeeder{}
+func NewUserSeeder() Seeder {
+	return &userSeeder{}
 }
 
-func (seeder *UserSeeder) Run(ctx context.Context, client *ent.Client) error {
+func (seeder *userSeeder) Run(ctx context.Context, client *ent.Client) error {
 	userRepository := repository.NewUserRepository(client)
 
 	exists, err := userRepository.FindUserByEmail(ctx, "test@example.com")

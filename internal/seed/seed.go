@@ -1,4 +1,4 @@
-package main
+package seed
 
 import (
 	"context"
@@ -10,17 +10,17 @@ type Seeder interface {
 	Run(ctx context.Context, client *ent.Client) error
 }
 
-type DefaultSeeder struct {
+type defaultSeeder struct {
 	seeders []Seeder
 }
 
-func NewSeeder(seeders ...Seeder) *DefaultSeeder {
-	return &DefaultSeeder{
+func NewSeeder(seeders ...Seeder) *defaultSeeder {
+	return &defaultSeeder{
 		seeders: seeders,
 	}
 }
 
-func (s *DefaultSeeder) Run(ctx context.Context, client *ent.Client) error {
+func (s *defaultSeeder) Run(ctx context.Context, client *ent.Client) error {
 	for _, seeder := range s.seeders {
 		if err := seeder.Run(ctx, client); err != nil {
 			return err

@@ -11,12 +11,12 @@ type Handler struct {
 	authUsecase *usecase.AuthUsecase
 }
 
-type LoginRequest struct {
+type loginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type SignUpRequest struct {
+type signUpRequest struct {
 	Username             string `json:"username"`
 	Email                string `json:"email"`
 	EmailConfirmation    string `json:"email_confirmation"`
@@ -24,13 +24,21 @@ type SignUpRequest struct {
 	PasswordConfirmation string `json:"password_confirmation"`
 }
 
-type LoginResponse struct {
+type normalResponse[T any] struct {
+	Data T `json:"data"`
+}
+
+type errorResponse struct {
+	Message string `json:"message"`
+}
+
+type loginResponse struct {
 	UUID         string `json:"uuid"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 }
 
-type SignUpResponse struct {
+type signUpResponse struct {
 	UUID         string `json:"uuid"`
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -43,7 +51,7 @@ func NewHandler(authUsecase *usecase.AuthUsecase) *Handler {
 }
 
 func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request) {
-	var loginRequest LoginRequest
+	var loginRequest loginRequest
 	ctx := Request.Context()
 
 	if err := json.NewDecoder(Request.Body).Decode(&loginRequest); err != nil {
@@ -57,7 +65,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 		return
 	}
 
-	loginResponse := LoginResponse{
+	loginResponse := loginResponse{
 		UUID:         result.UUID,
 		AccessToken:  result.AccessToken,
 		RefreshToken: result.RefreshToken,
@@ -67,7 +75,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 }
 
 func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request) {
-	var signUp SignUpRequest
+	var signUp signUpRequest
 	ctx := Request.Context()
 
 	if err := json.NewDecoder(Request.Body).Decode(&signUp); err != nil {
@@ -86,7 +94,7 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 		return
 	}
 
-	signUpResponse := SignUpResponse{
+	signUpResponse := signUpResponse{
 		UUID:         result.UUID,
 		AccessToken:  result.AccessToken,
 		RefreshToken: result.RefreshToken,

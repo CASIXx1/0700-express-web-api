@@ -1,4 +1,4 @@
-package main
+package seed
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 	"0700-express-web-api/interface/repository"
 )
 
-type ProjectSeeder struct{}
+type projectSeeder struct{}
 
-func NewProjectSeeder() *ProjectSeeder {
-	return &ProjectSeeder{}
+func NewProjectSeeder() Seeder {
+	return &projectSeeder{}
 }
 
-func (seeder *ProjectSeeder) Run(ctx context.Context, client *ent.Client) error {
+func (seeder *projectSeeder) Run(ctx context.Context, client *ent.Client) error {
 	projectRepository := repository.NewProjectRepository(client)
 
 	if err := projectRepository.CreateProject(ctx, "programming"); err != nil {

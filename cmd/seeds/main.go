@@ -1,6 +1,7 @@
 package main
 
 import (
+	"0700-express-web-api/internal/seed"
 	"context"
 	"fmt"
 	"log"
@@ -34,10 +35,10 @@ func main() {
 	}
 	defer tx.Rollback()
 
-	seeds := NewSeeder(
-		NewUserSeeder(),
-		NewProjectSeeder(),
-		NewTaskSeeder(),
+	seeds := seed.NewSeeder(
+		seed.NewUserSeeder(),
+		seed.NewProjectSeeder(),
+		seed.NewTaskSeeder(),
 	)
 
 	if err := seeds.Run(ctx, tx.Client()); err != nil {
