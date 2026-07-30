@@ -51,8 +51,8 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authRepository := repository.NewUserRepository(dbClient)
-	authUsecase := usecase.NewAuthUsecase(authRepository, auth.NewPasswordGenerator(), auth.NewTokenGenerator(jwtSecret))
+	userRepository := repository.NewUserRepository(dbClient)
+	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordGenerator(), auth.NewTokenGenerator(jwtSecret))
 	authHandler := handler.NewHandler(authUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
