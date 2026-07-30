@@ -1,17 +1,15 @@
 package main
 
 import (
+	"0700-express-web-api/internal/seed"
 	"context"
 	"fmt"
 	"log"
 	"os"
 
 	"0700-express-web-api/ent"
-	"0700-express-web-api/ent/project"
-	"0700-express-web-api/ent/user"
 
 	_ "github.com/lib/pq"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -31,73 +29,19 @@ func main() {
 	}
 	defer dbClient.Close()
 
-	if err := seedUser(ctx, dbClient); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := seedProject(ctx, dbClient, "programming"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := seedProject(ctx, dbClient, "design"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := seedProject(ctx, dbClient, "english"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := seedTask(ctx, dbClient, "Learn Go", "programming"); err != nil {
-		log.Fatal(err)
-	}
-	if err := seedTask(ctx, dbClient, "Learn English", "english"); err != nil {
-		log.Fatal(err)
-	}
-	if err := seedTask(ctx, dbClient, "Learn Design", "design"); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func seedUser(ctx context.Context, client *ent.Client) error {
-	exists, err := client.User.
-		Query().
-		Where(user.EmailEQ("admin@example.com")).
-		Exist(ctx)
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		return nil
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	tx, err := dbClient.Tx(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer tx.Rollback()
 
-	return client.User.
-		Create().
-		SetUsername("test").
-		SetEmail("test@example.com").
-		SetPassword(string(hashedPassword)).
-		Exec(ctx)
-}
+	seeds := seed.NewSeeder()
 
-func seedProject(ctx context.Context, client *ent.Client, slug string) error {
-	return client.Project.
-		Create().
-		SetSlug(slug).
-		Exec(ctx)
-}
+	if err := seeds.Run(ctx, tx.Client()); err != nil {
+		log.Fatal(err)
+	}
 
-func seedTask(ctx context.Context, client *ent.Client, title string, projectSlug string) error {
-	return client.Task.
-		Create().
-		SetTitle(title).
-		SetProject(client.Project.
-			Query().
-			Where(project.SlugEQ(projectSlug)).
-			OnlyX(ctx)).
-		Exec(ctx)
+	if err := tx.Commit(); err != nil {
+		log.Fatal(err)
+	}
 }

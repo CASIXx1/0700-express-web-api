@@ -2,7 +2,10 @@ package main
 
 import (
 	"0700-express-web-api/ent"
+	"0700-express-web-api/interface/handler"
+	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/internal/auth"
+	"0700-express-web-api/usecase"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -48,8 +51,12 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
-	authHandler := auth.CreateHandler(dbClient, jwtSecret)
+	authRepository := repository.NewUserRepository(dbClient)
+	authUsecase := usecase.NewAuthUsecase(authRepository, auth.NewPasswordGenerator(), auth.NewTokenGenerator(jwtSecret))
+	authHandler := handler.NewHandler(authUsecase)
+
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
+	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)

@@ -15,6 +15,9 @@ services:
       DB_PASSWORD: password
       DB_NAME: express_db
       JWT_SECRET: local-jwt-secret
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
 
   db:
     image: postgres:17-alpine
@@ -47,3 +50,4 @@ services:
 
 volumes:
   postgres_data:
+  go-mod-cache:
