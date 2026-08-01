@@ -54,9 +54,11 @@ func main() {
 	userRepository := repository.NewUserRepository(dbClient)
 	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordGenerator(), auth.NewTokenGenerator(jwtSecret))
 	authHandler := handler.NewHandler(authUsecase)
+	userHandler := handler.NewUserHandler()
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
+	r.HandleFunc("/user/me", userHandler.Me).Methods(http.MethodGet)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
