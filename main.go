@@ -52,13 +52,15 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	userRepository := repository.NewUserRepository(dbClient)
-	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordGenerator(), auth.NewTokenGenerator(jwtSecret))
+	tokenGenerator := auth.NewTokenGenerator(jwtSecret)
+	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordGenerator(), tokenGenerator)
+	userUsecase := usecase.NewUserUsecase(userRepository, tokenGenerator)
 	authHandler := handler.NewHandler(authUsecase)
-	userHandler := handler.NewUserHandler()
+	userHandler := handler.NewUserHandler(userUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
-	r.HandleFunc("/user/me", userHandler.Me).Methods(http.MethodGet)
+	r.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
