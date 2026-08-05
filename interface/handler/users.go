@@ -3,7 +3,6 @@ package handler
 import (
 	"0700-express-web-api/usecase"
 	"net/http"
-	"strings"
 )
 
 type UserHandler struct {
@@ -24,23 +23,13 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 }
 
 func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request) {
-	authorization := request.Header.Get("Authorization")
-
-	if authorization == "" {
+	accessToken, ok := bearerToken(request)
+	if !ok {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
-
-	if !strings.HasPrefix(authorization, "Bearer ") {
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
-			Message: "unauthorized",
-		})
-		return
-	}
-
-	accessToken := strings.TrimPrefix(authorization, "Bearer ")
 
 	user, err := handler.userUsecase.Me(request.Context(), accessToken)
 	if err != nil {
