@@ -52,9 +52,9 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	userRepository := repository.NewUserRepository(dbClient)
-	tokenGenerator := auth.NewTokenGenerator(jwtSecret)
-	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordGenerator(), tokenGenerator)
-	userUsecase := usecase.NewUserUsecase(userRepository, tokenGenerator)
+	tokenService := auth.NewTokenService(jwtSecret)
+	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordVerifier(), tokenService)
+	userUsecase := usecase.NewUserUsecase(userRepository, tokenService)
 	authHandler := handler.NewHandler(authUsecase)
 	userHandler := handler.NewUserHandler(userUsecase)
 

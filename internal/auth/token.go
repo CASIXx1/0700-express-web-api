@@ -7,29 +7,29 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type tokenGenerator struct {
+type tokenService struct {
 	secret string
 }
 
-func NewTokenGenerator(secret string) *tokenGenerator {
-	return &tokenGenerator{
+func NewTokenService(secret string) *tokenService {
+	return &tokenService{
 		secret: secret,
 	}
 }
 
-func (tokenGenerator *tokenGenerator) GenerateAccessToken(userId string) (string, error) {
-	return generateToken(userId, "access", time.Now().Add(time.Hour), tokenGenerator.secret)
+func (tokenService *tokenService) GenerateAccessToken(userId string) (string, error) {
+	return generateToken(userId, "access", time.Now().Add(time.Hour), tokenService.secret)
 }
 
-func (tokenGenerator *tokenGenerator) GenerateRefreshToken(userId string) (string, error) {
-	return generateToken(userId, "refresh", time.Now().Add(time.Hour*24*7), tokenGenerator.secret)
+func (tokenService *tokenService) GenerateRefreshToken(userId string) (string, error) {
+	return generateToken(userId, "refresh", time.Now().Add(time.Hour*24*7), tokenService.secret)
 }
 
-func (tokenGenerator *tokenGenerator) VerifyAccessToken(accessToken string) (string, error) {
+func (tokenService *tokenService) VerifyAccessToken(accessToken string) (string, error) {
 	claims := jwt.MapClaims{}
 
 	token, err := jwt.ParseWithClaims(accessToken, claims, func(token *jwt.Token) (any, error) {
-		return []byte(tokenGenerator.secret), nil
+		return []byte(tokenService.secret), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	if err != nil {
 		return "", err
