@@ -15,16 +15,22 @@ func newProjectSeeder() seeder {
 
 func (seeder *projectSeeder) Run(ctx context.Context, client *ent.Client) error {
 	projectRepository := repository.NewProjectRepository(client)
+	userRepository := repository.NewUserRepository(client)
 
-	if err := projectRepository.CreateProject(ctx, "programming"); err != nil {
+	user, err := userRepository.FindUserByEmail(ctx, "test@example.com")
+	if err != nil {
 		return err
 	}
 
-	if err := projectRepository.CreateProject(ctx, "design"); err != nil {
+	if err := projectRepository.CreateProject(ctx, "programming", user.ID); err != nil {
 		return err
 	}
 
-	if err := projectRepository.CreateProject(ctx, "english"); err != nil {
+	if err := projectRepository.CreateProject(ctx, "design", user.ID); err != nil {
+		return err
+	}
+
+	if err := projectRepository.CreateProject(ctx, "english", user.ID); err != nil {
 		return err
 	}
 
