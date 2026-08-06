@@ -15,10 +15,17 @@ type errorResponse struct {
 }
 
 func writeResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
+	body, err := json.Marshal(response)
+	if err != nil {
+		log.Printf("failed to encode response: %v", err)
+
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusInternalServerError)
+		_, _ = writer.Write([]byte(`{"message":"failed to encode response"}`))
+		return
+	}
+
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
-
-	if err := json.NewEncoder(writer).Encode(response); err != nil {
-		log.Printf("failed to encode response: %v", err)
-	}
+	_, _ = writer.Write(body)
 }
