@@ -23,8 +23,8 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 }
 
 func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request) {
-	accessToken, ok := bearerToken(request)
-	if !ok {
+	accessToken, err := bearerToken(request)
+	if err != nil {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
 		})

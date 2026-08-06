@@ -1,24 +1,25 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 )
 
-func bearerToken(request *http.Request) (string, bool) {
+func bearerToken(request *http.Request) (string, error) {
 	authorization := request.Header.Get("Authorization")
 	if authorization == "" {
-		return "", false
+		return "", errors.New("missing authorization")
 	}
 
 	if !strings.HasPrefix(authorization, "Bearer ") {
-		return "", false
+		return "", errors.New("invalid authorization")
 	}
 
 	token := strings.TrimPrefix(authorization, "Bearer ")
 	if token == "" {
-		return "", false
+		return "", errors.New("invalid authorization")
 	}
 
-	return token, true
+	return token, nil
 }
