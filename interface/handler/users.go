@@ -2,6 +2,7 @@ package handler
 
 import (
 	"0700-express-web-api/usecase"
+	"log"
 	"net/http"
 )
 
@@ -33,6 +34,8 @@ func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request
 
 	user, err := handler.userUsecase.Me(request.Context(), accessToken)
 	if err != nil {
+		log.Printf("failed to get user: %v", err)
+
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
 		})
