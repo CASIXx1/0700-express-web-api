@@ -21,11 +21,18 @@ func writeResponse[T any](writer http.ResponseWriter, statusCode int, response T
 
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
-		_, _ = writer.Write([]byte(`{"message":"failed to encode response"}`))
+
+		if _, err := writer.Write([]byte(`{"message":"failed to encode response"}`)); err != nil {
+			panic("failed to write error response: " + err.Error())
+		}
+
 		return
 	}
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
-	_, _ = writer.Write(body)
+
+	if _, err := writer.Write(body); err != nil {
+		panic("failed to write response: " + err.Error())
+	}
 }
