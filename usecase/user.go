@@ -6,11 +6,11 @@ import (
 )
 
 type UserUsecase struct {
-	userRepository MeUserRepository
+	userRepository UserRepository
 	tokenVerifier  tokenVerifier
 }
 
-type MeUserRepository interface {
+type UserRepository interface {
 	FindUserByID(ctx context.Context, userID string) (*ent.User, error)
 }
 
@@ -18,7 +18,7 @@ type tokenVerifier interface {
 	VerifyAccessToken(accessToken string) (string, error)
 }
 
-func NewUserUsecase(userRepository MeUserRepository, tokenVerifier tokenVerifier) *UserUsecase {
+func NewUserUsecase(userRepository UserRepository, tokenVerifier tokenVerifier) *UserUsecase {
 	return &UserUsecase{
 		userRepository: userRepository,
 		tokenVerifier:  tokenVerifier,
