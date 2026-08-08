@@ -13,7 +13,7 @@ var ErrInvalidCredentials = errors.New("invalid credentials")
 var ErrUserAlreadyExists = errors.New("user already exists")
 
 type AuthUsecase struct {
-	userRepository   UserRepository
+	userRepository   AuthUserRepository
 	passwordVerifier passwordVerifier
 	tokenGenerator   tokenGenerator
 }
@@ -24,7 +24,7 @@ type AuthResult struct {
 	RefreshToken string
 }
 
-type UserRepository interface {
+type AuthUserRepository interface {
 	FindUserByEmail(ctx context.Context, email string) (*ent.User, error)
 	CreateUser(ctx context.Context, username, email, hashedPassword string) (*ent.User, error)
 }
@@ -38,7 +38,7 @@ type tokenGenerator interface {
 	GenerateRefreshToken(userIdentifier string) (string, error)
 }
 
-func NewAuthUsecase(userRepository UserRepository, passwordVerifier passwordVerifier, tokenGenerator tokenGenerator) *AuthUsecase {
+func NewAuthUsecase(userRepository AuthUserRepository, passwordVerifier passwordVerifier, tokenGenerator tokenGenerator) *AuthUsecase {
 	return &AuthUsecase{
 		userRepository:   userRepository,
 		passwordVerifier: passwordVerifier,

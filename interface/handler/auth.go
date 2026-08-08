@@ -4,7 +4,6 @@ import (
 	"0700-express-web-api/usecase"
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -23,14 +22,6 @@ type signUpRequest struct {
 	EmailConfirmation    string `json:"email_confirmation"`
 	Password             string `json:"password"`
 	PasswordConfirmation string `json:"password_confirmation"`
-}
-
-type normalResponse[T any] struct {
-	Data T `json:"data"`
-}
-
-type errorResponse struct {
-	Message string `json:"message"`
 }
 
 type loginResponse struct {
@@ -116,13 +107,4 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	writeResponse(writer, http.StatusOK, normalResponse[signUpResponse]{
 		Data: signUpRes,
 	})
-}
-
-func writeResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(statusCode)
-
-	if err := json.NewEncoder(writer).Encode(response); err != nil {
-		log.Printf("failed to encode response: %v", err)
-	}
 }
