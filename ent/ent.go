@@ -608,5 +608,5 @@ func scanWithInterceptors[Q1 ent.Query, Q2 interface {
 	return nil
 }
 
-// queryHook describes an interface hook for the different sqlAll methods.
+// queryHook describes an internal hook for the different sqlAll methods.
 type queryHook func(context.Context, *sqlgraph.QuerySpec)

@@ -5,6 +5,7 @@ package ent
 import (
 	"0700-express-web-api/ent/project"
 	"0700-express-web-api/ent/task"
+	"0700-express-web-api/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -27,6 +28,12 @@ func (_c *ProjectCreate) SetSlug(v string) *ProjectCreate {
 	return _c
 }
 
+// SetUserID sets the "user_id" field.
+func (_c *ProjectCreate) SetUserID(v uuid.UUID) *ProjectCreate {
+	_c.mutation.SetUserID(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ProjectCreate) SetID(v uuid.UUID) *ProjectCreate {
 	_c.mutation.SetID(v)
@@ -39,6 +46,11 @@ func (_c *ProjectCreate) SetNillableID(v *uuid.UUID) *ProjectCreate {
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (_c *ProjectCreate) SetUser(v *User) *ProjectCreate {
+	return _c.SetUserID(v.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
@@ -102,6 +114,12 @@ func (_c *ProjectCreate) check() error {
 	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Project.slug"`)}
 	}
+	if _, ok := _c.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Project.user_id"`)}
+	}
+	if len(_c.mutation.UserIDs()) == 0 {
+		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Project.user"`)}
+	}
 	return nil
 }
 
@@ -140,6 +158,23 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
 		_node.Slug = value
+	}
+	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   project.UserTable,
+			Columns: []string{project.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.TasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

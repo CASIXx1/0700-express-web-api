@@ -60,6 +60,11 @@ func Slug(v string) predicate.Project {
 	return predicate.Project(sql.FieldEQ(FieldSlug, v))
 }
 
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v uuid.UUID) predicate.Project {
+	return predicate.Project(sql.FieldEQ(FieldUserID, v))
+}
+
 // SlugEQ applies the EQ predicate on the "slug" field.
 func SlugEQ(v string) predicate.Project {
 	return predicate.Project(sql.FieldEQ(FieldSlug, v))
@@ -123,6 +128,49 @@ func SlugEqualFold(v string) predicate.Project {
 // SlugContainsFold applies the ContainsFold predicate on the "slug" field.
 func SlugContainsFold(v string) predicate.Project {
 	return predicate.Project(sql.FieldContainsFold(FieldSlug, v))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v uuid.UUID) predicate.Project {
+	return predicate.Project(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v uuid.UUID) predicate.Project {
+	return predicate.Project(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...uuid.UUID) predicate.Project {
+	return predicate.Project(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...uuid.UUID) predicate.Project {
+	return predicate.Project(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// HasUser applies the HasEdge predicate on the "user" edge.
+func HasUser() predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
+func HasUserWith(preds ...predicate.User) predicate.Project {
+	return predicate.Project(func(s *sql.Selector) {
+		step := newUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // HasTasks applies the HasEdge predicate on the "tasks" edge.

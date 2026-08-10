@@ -12,12 +12,21 @@ var (
 	ProjectsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "slug", Type: field.TypeString, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// ProjectsTable holds the schema information for the "projects" table.
 	ProjectsTable = &schema.Table{
 		Name:       "projects",
 		Columns:    ProjectsColumns,
 		PrimaryKey: []*schema.Column{ProjectsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "projects_users_projects",
+				Columns:    []*schema.Column{ProjectsColumns[2]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// TasksColumns holds the columns for the "tasks" table.
 	TasksColumns = []*schema.Column{
@@ -63,5 +72,6 @@ var (
 )
 
 func init() {
+	ProjectsTable.ForeignKeys[0].RefTable = UsersTable
 	TasksTable.ForeignKeys[0].RefTable = ProjectsTable
 }

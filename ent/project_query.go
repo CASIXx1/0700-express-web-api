@@ -6,6 +6,7 @@ import (
 	"0700-express-web-api/ent/predicate"
 	"0700-express-web-api/ent/project"
 	"0700-express-web-api/ent/task"
+	"0700-express-web-api/ent/user"
 	"context"
 	"database/sql/driver"
 	"fmt"
@@ -25,6 +26,7 @@ type ProjectQuery struct {
 	order      []project.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Project
+	withUser   *UserQuery
 	withTasks  *TaskQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -60,6 +62,28 @@ func (_q *ProjectQuery) Unique(unique bool) *ProjectQuery {
 func (_q *ProjectQuery) Order(o ...project.OrderOption) *ProjectQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryUser chains the current query on the "user" edge.
+func (_q *ProjectQuery) QueryUser() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, project.UserTable, project.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryTasks chains the current query on the "tasks" edge.
@@ -276,11 +300,23 @@ func (_q *ProjectQuery) Clone() *ProjectQuery {
 		order:      append([]project.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.Project{}, _q.predicates...),
+		withUser:   _q.withUser.Clone(),
 		withTasks:  _q.withTasks.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProjectQuery) WithUser(opts ...func(*UserQuery)) *ProjectQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withUser = query
+	return _q
 }
 
 // WithTasks tells the query-builder to eager-load the nodes that are connected to
@@ -372,7 +408,8 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 	var (
 		nodes       = []*Project{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
+			_q.withUser != nil,
 			_q.withTasks != nil,
 		}
 	)
@@ -394,6 +431,12 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withUser; query != nil {
+		if err := _q.loadUser(ctx, query, nodes, nil,
+			func(n *Project, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withTasks; query != nil {
 		if err := _q.loadTasks(ctx, query, nodes,
 			func(n *Project) { n.Edges.Tasks = []*Task{} },
@@ -404,6 +447,35 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 	return nodes, nil
 }
 
+func (_q *ProjectQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Project, init func(*Project), assign func(*Project, *User)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Project)
+	for i := range nodes {
+		fk := nodes[i].UserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (_q *ProjectQuery) loadTasks(ctx context.Context, query *TaskQuery, nodes []*Project, init func(*Project), assign func(*Project, *Task)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Project)
@@ -460,6 +532,9 @@ func (_q *ProjectQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != project.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withUser != nil {
+			_spec.Node.AddColumnOnce(project.FieldUserID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
