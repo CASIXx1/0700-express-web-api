@@ -16,7 +16,7 @@ func NewProjectRepository(client *ent.Client) *ProjectRepository {
 	return &ProjectRepository{client}
 }
 
-func (repository *ProjectRepository) FindProjects(ctx context.Context, userID string) ([]*ent.Project, error) {
+func (repository *ProjectRepository) FindProjects(ctx context.Context, userID string, limit int) ([]*ent.Project, error) {
 	id, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
@@ -24,6 +24,7 @@ func (repository *ProjectRepository) FindProjects(ctx context.Context, userID st
 
 	return repository.client.Project.
 		Query().
+		Limit(limit).
 		Where(entProject.UserID(id)).
 		All(ctx)
 }

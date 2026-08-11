@@ -5,6 +5,7 @@ import (
 	"0700-express-web-api/usecase"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type ProjectHandler struct {
@@ -31,7 +32,25 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	projects, err := handler.projectUsecase.FindProjects(request.Context(), accessToken)
+	limit := 1
+	limit, err = strconv.Atoi(request.URL.Query().Get("limit"))
+	if err != nil {
+		writeResponse(writer, http.StatusBadRequest, errorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	//page := 1
+	//page, err = strconv.Atoi(request.URL.Query().Get("page"))
+	//if err != nil {
+	//	writeResponse(writer, http.StatusBadRequest, errorResponse{
+	//		Message: err.Error(),
+	//	})
+	//	return
+	//}
+
+	projects, err := handler.projectUsecase.FindProjects(request.Context(), accessToken, limit)
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
