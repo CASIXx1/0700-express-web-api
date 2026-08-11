@@ -2,6 +2,7 @@ package repository
 
 import (
 	"0700-express-web-api/ent"
+	entProject "0700-express-web-api/ent/project"
 	"context"
 
 	"github.com/google/uuid"
@@ -15,9 +16,15 @@ func NewProjectRepository(client *ent.Client) *ProjectRepository {
 	return &ProjectRepository{client}
 }
 
-func (repository *ProjectRepository) FindProjects(ctx context.Context) ([]*ent.Project, error) {
+func (repository *ProjectRepository) FindProjects(ctx context.Context, userID string) ([]*ent.Project, error) {
+	id, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	return repository.client.Project.
 		Query().
+		Where(entProject.UserID(id)).
 		All(ctx)
 }
 

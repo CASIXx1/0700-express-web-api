@@ -11,7 +11,7 @@ type ProjectUsecase struct {
 }
 
 type ProjectRepository interface {
-	FindProjects(ctx context.Context) ([]*ent.Project, error)
+	FindProjects(ctx context.Context, userId string) ([]*ent.Project, error)
 }
 
 func NewProjectUsecase(projectRepository ProjectRepository, tokenVerifier tokenVerifier) *ProjectUsecase {
@@ -21,11 +21,12 @@ func NewProjectUsecase(projectRepository ProjectRepository, tokenVerifier tokenV
 	}
 }
 
-// Userが持っているProjectを取得する
 func (usecase *ProjectUsecase) FindProjects(ctx context.Context, accessToken string) ([]*ent.Project, error) {
-	if _, err := usecase.tokenVerifier.VerifyAccessToken(accessToken); err != nil {
+	userID, err := usecase.tokenVerifier.VerifyAccessToken(accessToken)
+
+	if err != nil {
 		return nil, err
 	}
 
-	return usecase.projectRepository.FindProjects(ctx)
+	return usecase.projectRepository.FindProjects(ctx, userID)
 }
