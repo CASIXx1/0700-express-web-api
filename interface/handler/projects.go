@@ -17,6 +17,19 @@ type projectResponse struct {
 	Slug string `json:"slug"`
 }
 
+type paginationResponse struct {
+	Page        int  `json:"page"`
+	Limit       int  `json:"limit"`
+	HasNext     bool `json:"hasNext"`
+	HasPrevious bool `json:"hasPrevious"`
+	TotalCount  int  `json:"totalCount"`
+}
+
+type projectsResponse struct {
+	Projects   []projectResponse  `json:"projects"`
+	Pagination paginationResponse `json:"pagination"`
+}
+
 func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
 	return &ProjectHandler{
 		projectUsecase: projectUsecase,
@@ -41,16 +54,28 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	//page := 1
-	//page, err = strconv.Atoi(request.URL.Query().Get("page"))
-	//if err != nil {
-	//	writeResponse(writer, http.StatusBadRequest, errorResponse{
-	//		Message: err.Error(),
-	//	})
-	//	return
-	//}
+	page := 1
+	page, err = strconv.Atoi(request.URL.Query().Get("page"))
+	if err != nil {
+		writeResponse(writer, http.StatusBadRequest, errorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
 
-	projects, err := handler.projectUsecase.FindProjects(request.Context(), accessToken, limit)
+	totalCount, err := handler.projectUsecase.CountProjects(request.Context(), accessToken)
+	if err != nil {
+		writeResponse(writer, http.StatusInternalServerError, errorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	offset := (page - 1) * limit
+	hasPrevious := page > 1
+	hasNext := offset+limit < totalCount
+
+	projects, err := handler.projectUsecase.FindProjects(request.Context(), accessToken, limit, offset)
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
@@ -60,8 +85,17 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	writeResponse(writer, http.StatusOK, normalResponse[[]projectResponse]{
-		Data: projectResponses(projects),
+	writeResponse(writer, http.StatusOK, normalResponse[projectsResponse]{
+		Data: projectsResponse{
+			Projects: projectResponses(projects),
+			Pagination: paginationResponse{
+				Page:        page,
+				Limit:       limit,
+				TotalCount:  totalCount,
+				HasPrevious: hasPrevious,
+				HasNext:     hasNext,
+			},
+		},
 	})
 }
 

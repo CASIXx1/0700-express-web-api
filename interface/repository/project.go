@@ -16,7 +16,7 @@ func NewProjectRepository(client *ent.Client) *ProjectRepository {
 	return &ProjectRepository{client}
 }
 
-func (repository *ProjectRepository) FindProjects(ctx context.Context, userID string, limit int) ([]*ent.Project, error) {
+func (repository *ProjectRepository) FindProjects(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error) {
 	id, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
@@ -25,14 +25,32 @@ func (repository *ProjectRepository) FindProjects(ctx context.Context, userID st
 	return repository.client.Project.
 		Query().
 		Limit(limit).
+		Offset(offset).
 		Where(entProject.UserID(id)).
 		All(ctx)
 }
 
-func (repository *ProjectRepository) CreateProject(ctx context.Context, slug string, userID uuid.UUID) error {
+func (repository *ProjectRepository) CreateProject(ctx context.Context, slug string, userID string) error {
+	id, err := uuid.Parse(userID)
+	if err != nil {
+		return err
+	}
+
 	return repository.client.Project.
 		Create().
 		SetSlug(slug).
-		SetUserID(userID).
+		SetUserID(id).
 		Exec(ctx)
+}
+
+func (repository *ProjectRepository) CountProjects(ctx context.Context, userID string) (int, error) {
+	id, err := uuid.Parse(userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return repository.client.Project.
+		Query().
+		Where(entProject.UserID(id)).
+		Count(ctx)
 }
