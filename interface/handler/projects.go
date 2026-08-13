@@ -14,6 +14,7 @@ type ProjectHandler struct {
 
 type projectResponse struct {
 	ID   string `json:"id"`
+	Slug string `json:"slug"`
 	Name string `json:"name"`
 }
 
@@ -90,7 +91,8 @@ func projectResponses(projects []*ent.Project) []projectResponse {
 	for _, project := range projects {
 		responses = append(responses, projectResponse{
 			ID:   project.ID.String(),
-			Name: project.Slug,
+			Slug: project.Slug,
+			Name: "name",
 		})
 	}
 
