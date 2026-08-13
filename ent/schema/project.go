@@ -21,6 +21,7 @@ func (Project) Fields() []ent.Field {
 
 		field.String("slug").
 			Unique(),
+		field.Int("sort_order"),
 		field.UUID("user_id", uuid.UUID{}),
 	}
 }

@@ -28,6 +28,12 @@ func (_c *ProjectCreate) SetSlug(v string) *ProjectCreate {
 	return _c
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (_c *ProjectCreate) SetSortOrder(v int) *ProjectCreate {
+	_c.mutation.SetSortOrder(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *ProjectCreate) SetUserID(v uuid.UUID) *ProjectCreate {
 	_c.mutation.SetUserID(v)
@@ -114,6 +120,9 @@ func (_c *ProjectCreate) check() error {
 	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Project.slug"`)}
 	}
+	if _, ok := _c.mutation.SortOrder(); !ok {
+		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Project.sort_order"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Project.user_id"`)}
 	}
@@ -158,6 +167,10 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
 		_node.Slug = value
+	}
+	if value, ok := _c.mutation.SortOrder(); ok {
+		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)
+		_node.SortOrder = value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

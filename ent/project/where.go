@@ -60,6 +60,11 @@ func Slug(v string) predicate.Project {
 	return predicate.Project(sql.FieldEQ(FieldSlug, v))
 }
 
+// SortOrder applies equality check predicate on the "sort_order" field. It's identical to SortOrderEQ.
+func SortOrder(v int) predicate.Project {
+	return predicate.Project(sql.FieldEQ(FieldSortOrder, v))
+}
+
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v uuid.UUID) predicate.Project {
 	return predicate.Project(sql.FieldEQ(FieldUserID, v))
@@ -128,6 +133,46 @@ func SlugEqualFold(v string) predicate.Project {
 // SlugContainsFold applies the ContainsFold predicate on the "slug" field.
 func SlugContainsFold(v string) predicate.Project {
 	return predicate.Project(sql.FieldContainsFold(FieldSlug, v))
+}
+
+// SortOrderEQ applies the EQ predicate on the "sort_order" field.
+func SortOrderEQ(v int) predicate.Project {
+	return predicate.Project(sql.FieldEQ(FieldSortOrder, v))
+}
+
+// SortOrderNEQ applies the NEQ predicate on the "sort_order" field.
+func SortOrderNEQ(v int) predicate.Project {
+	return predicate.Project(sql.FieldNEQ(FieldSortOrder, v))
+}
+
+// SortOrderIn applies the In predicate on the "sort_order" field.
+func SortOrderIn(vs ...int) predicate.Project {
+	return predicate.Project(sql.FieldIn(FieldSortOrder, vs...))
+}
+
+// SortOrderNotIn applies the NotIn predicate on the "sort_order" field.
+func SortOrderNotIn(vs ...int) predicate.Project {
+	return predicate.Project(sql.FieldNotIn(FieldSortOrder, vs...))
+}
+
+// SortOrderGT applies the GT predicate on the "sort_order" field.
+func SortOrderGT(v int) predicate.Project {
+	return predicate.Project(sql.FieldGT(FieldSortOrder, v))
+}
+
+// SortOrderGTE applies the GTE predicate on the "sort_order" field.
+func SortOrderGTE(v int) predicate.Project {
+	return predicate.Project(sql.FieldGTE(FieldSortOrder, v))
+}
+
+// SortOrderLT applies the LT predicate on the "sort_order" field.
+func SortOrderLT(v int) predicate.Project {
+	return predicate.Project(sql.FieldLT(FieldSortOrder, v))
+}
+
+// SortOrderLTE applies the LTE predicate on the "sort_order" field.
+func SortOrderLTE(v int) predicate.Project {
+	return predicate.Project(sql.FieldLTE(FieldSortOrder, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.

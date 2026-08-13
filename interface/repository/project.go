@@ -27,19 +27,16 @@ func (repository *ProjectRepository) FindProjects(ctx context.Context, userID st
 		Limit(limit).
 		Offset(offset).
 		Where(entProject.UserID(id)).
+		Order(entProject.BySortOrder()).
 		All(ctx)
 }
 
-func (repository *ProjectRepository) CreateProject(ctx context.Context, slug string, userID string) error {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-
+func (repository *ProjectRepository) CreateProject(ctx context.Context, slug string, userID uuid.UUID, sortOrder int) error {
 	return repository.client.Project.
 		Create().
 		SetSlug(slug).
-		SetUserID(id).
+		SetUserID(userID).
+		SetSortOrder(sortOrder).
 		Exec(ctx)
 }
 

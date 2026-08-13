@@ -44,6 +44,27 @@ func (_u *ProjectUpdate) SetNillableSlug(v *string) *ProjectUpdate {
 	return _u
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (_u *ProjectUpdate) SetSortOrder(v int) *ProjectUpdate {
+	_u.mutation.ResetSortOrder()
+	_u.mutation.SetSortOrder(v)
+	return _u
+}
+
+// SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableSortOrder(v *int) *ProjectUpdate {
+	if v != nil {
+		_u.SetSortOrder(*v)
+	}
+	return _u
+}
+
+// AddSortOrder adds value to the "sort_order" field.
+func (_u *ProjectUpdate) AddSortOrder(v int) *ProjectUpdate {
+	_u.mutation.AddSortOrder(v)
+	return _u
+}
+
 // SetUserID sets the "user_id" field.
 func (_u *ProjectUpdate) SetUserID(v uuid.UUID) *ProjectUpdate {
 	_u.mutation.SetUserID(v)
@@ -160,6 +181,12 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SortOrder(); ok {
+		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSortOrder(); ok {
+		_spec.AddField(project.FieldSortOrder, field.TypeInt, value)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -265,6 +292,27 @@ func (_u *ProjectUpdateOne) SetNillableSlug(v *string) *ProjectUpdateOne {
 	if v != nil {
 		_u.SetSlug(*v)
 	}
+	return _u
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (_u *ProjectUpdateOne) SetSortOrder(v int) *ProjectUpdateOne {
+	_u.mutation.ResetSortOrder()
+	_u.mutation.SetSortOrder(v)
+	return _u
+}
+
+// SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableSortOrder(v *int) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetSortOrder(*v)
+	}
+	return _u
+}
+
+// AddSortOrder adds value to the "sort_order" field.
+func (_u *ProjectUpdateOne) AddSortOrder(v int) *ProjectUpdateOne {
+	_u.mutation.AddSortOrder(v)
 	return _u
 }
 
@@ -413,6 +461,12 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SortOrder(); ok {
+		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSortOrder(); ok {
+		_spec.AddField(project.FieldSortOrder, field.TypeInt, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
