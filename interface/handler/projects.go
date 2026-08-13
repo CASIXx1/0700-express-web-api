@@ -14,20 +14,7 @@ type ProjectHandler struct {
 
 type projectResponse struct {
 	ID   string `json:"id"`
-	Slug string `json:"slug"`
-}
-
-type paginationResponse struct {
-	Page        int  `json:"page"`
-	Limit       int  `json:"limit"`
-	HasNext     bool `json:"hasNext"`
-	HasPrevious bool `json:"hasPrevious"`
-	TotalCount  int  `json:"totalCount"`
-}
-
-type projectsResponse struct {
-	Projects   []projectResponse  `json:"projects"`
-	Pagination paginationResponse `json:"pagination"`
+	Name string `json:"name"`
 }
 
 func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
@@ -85,16 +72,14 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	writeResponse(writer, http.StatusOK, normalResponse[projectsResponse]{
-		Data: projectsResponse{
-			Projects: projectResponses(projects),
-			Pagination: paginationResponse{
-				Page:        page,
-				Limit:       limit,
-				TotalCount:  totalCount,
-				HasPrevious: hasPrevious,
-				HasNext:     hasNext,
-			},
+	writeResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
+		Data: projectResponses(projects),
+		Pagination: paginationResponse{
+			Page:        page,
+			Limit:       limit,
+			TotalCount:  totalCount,
+			HasPrevious: hasPrevious,
+			HasNext:     hasNext,
 		},
 	})
 }
@@ -105,7 +90,7 @@ func projectResponses(projects []*ent.Project) []projectResponse {
 	for _, project := range projects {
 		responses = append(responses, projectResponse{
 			ID:   project.ID.String(),
-			Slug: project.Slug,
+			Name: project.Slug,
 		})
 	}
 

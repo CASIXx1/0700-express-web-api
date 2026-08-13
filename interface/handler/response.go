@@ -10,6 +10,19 @@ type normalResponse[T any] struct {
 	Data T `json:"data"`
 }
 
+type paginatedResponse[T any] struct {
+	Data       T                  `json:"data"`
+	Pagination paginationResponse `json:"pageInfo"`
+}
+
+type paginationResponse struct {
+	Page        int  `json:"page"`
+	Limit       int  `json:"limit"`
+	HasNext     bool `json:"hasNext"`
+	HasPrevious bool `json:"hasPrevious"`
+	TotalCount  int  `json:"totalCount"`
+}
+
 type errorResponse struct {
 	Message string `json:"message"`
 }
