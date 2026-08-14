@@ -115,7 +115,11 @@ func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, req
 	}
 
 	writeResponse(writer, http.StatusOK, normalResponse[projectResponse]{
-		Data: projectResponses(project),
+		Data: projectResponse{
+			ID:   project.ID.String(),
+			Slug: project.Slug,
+			Name: "name",
+		},
 	})
 }
 
