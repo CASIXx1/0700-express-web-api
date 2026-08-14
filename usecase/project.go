@@ -11,8 +11,8 @@ type ProjectUsecase struct {
 }
 
 type ProjectRepository interface {
-	FindProjects(ctx context.Context, userId string, limit int, offset int) ([]*ent.Project, error)
-	FindProjectBySlug(ctx context.Context, userId string, slug string) (*ent.Project, error)
+	FindProjects(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error)
+	FindProjectBySlug(ctx context.Context, userID string, slug string) (*ent.Project, error)
 	CountProjects(ctx context.Context, userID string) (int, error)
 }
 

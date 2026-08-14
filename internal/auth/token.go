@@ -17,12 +17,12 @@ func NewTokenService(secret string) *tokenService {
 	}
 }
 
-func (tokenService *tokenService) GenerateAccessToken(userId string) (string, error) {
-	return generateToken(userId, "access", time.Now().Add(time.Hour), tokenService.secret)
+func (tokenService *tokenService) GenerateAccessToken(userID string) (string, error) {
+	return generateToken(userID, "access", time.Now().Add(time.Hour), tokenService.secret)
 }
 
-func (tokenService *tokenService) GenerateRefreshToken(userId string) (string, error) {
-	return generateToken(userId, "refresh", time.Now().Add(time.Hour*24*7), tokenService.secret)
+func (tokenService *tokenService) GenerateRefreshToken(userID string) (string, error) {
+	return generateToken(userID, "refresh", time.Now().Add(time.Hour*24*7), tokenService.secret)
 }
 
 func (tokenService *tokenService) VerifyAccessToken(accessToken string) (string, error) {
@@ -44,17 +44,17 @@ func (tokenService *tokenService) VerifyAccessToken(accessToken string) (string,
 		return "", errors.New("invalid token type")
 	}
 
-	userId, ok := claims["sub"].(string)
+	userID, ok := claims["sub"].(string)
 	if !ok {
 		return "", errors.New("invalid token subject")
 	}
 
-	return userId, nil
+	return userID, nil
 }
 
-func generateToken(userId string, tokenType string, expiresAt time.Time, jwtSecret string) (string, error) {
+func generateToken(userID string, tokenType string, expiresAt time.Time, jwtSecret string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":  userId,
+		"sub":  userID,
 		"type": tokenType,
 		"exp":  expiresAt.Unix(),
 		"iat":  time.Now().Unix(),
