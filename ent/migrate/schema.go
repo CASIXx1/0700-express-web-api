@@ -11,6 +11,7 @@ var (
 	// ProjectsColumns holds the columns for the "projects" table.
 	ProjectsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString},
 		{Name: "slug", Type: field.TypeString, Unique: true},
 		{Name: "sort_order", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeUUID},
@@ -23,7 +24,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "projects_users_projects",
-				Columns:    []*schema.Column{ProjectsColumns[3]},
+				Columns:    []*schema.Column{ProjectsColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

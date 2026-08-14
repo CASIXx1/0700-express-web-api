@@ -118,7 +118,7 @@ func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, req
 		Data: projectResponse{
 			ID:   project.ID.String(),
 			Slug: project.Slug,
-			Name: "name",
+			Name: project.Name,
 		},
 	})
 }
@@ -130,7 +130,7 @@ func projectResponses(projects []*ent.Project) []projectResponse {
 		responses = append(responses, projectResponse{
 			ID:   project.ID.String(),
 			Slug: project.Slug,
-			Name: "name",
+			Name: project.Name,
 		})
 	}
 

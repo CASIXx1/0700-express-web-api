@@ -18,6 +18,8 @@ type Project struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
 	// Slug holds the value of the "slug" field.
 	Slug string `json:"slug,omitempty"`
 	// SortOrder holds the value of the "sort_order" field.
@@ -68,7 +70,7 @@ func (*Project) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case project.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case project.FieldSlug:
+		case project.FieldName, project.FieldSlug:
 			values[i] = new(sql.NullString)
 		case project.FieldID, project.FieldUserID:
 			values[i] = new(uuid.UUID)
@@ -92,6 +94,12 @@ func (_m *Project) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case project.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				_m.Name = value.String
 			}
 		case project.FieldSlug:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -157,6 +165,9 @@ func (_m *Project) String() string {
 	var builder strings.Builder
 	builder.WriteString("Project(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("name=")
+	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
 	builder.WriteString("slug=")
 	builder.WriteString(_m.Slug)
 	builder.WriteString(", ")

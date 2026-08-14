@@ -22,6 +22,12 @@ type ProjectCreate struct {
 	hooks    []Hook
 }
 
+// SetName sets the "name" field.
+func (_c *ProjectCreate) SetName(v string) *ProjectCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
 // SetSlug sets the "slug" field.
 func (_c *ProjectCreate) SetSlug(v string) *ProjectCreate {
 	_c.mutation.SetSlug(v)
@@ -117,6 +123,9 @@ func (_c *ProjectCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ProjectCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Project.name"`)}
+	}
 	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Project.slug"`)}
 	}
@@ -163,6 +172,10 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
+	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(project.FieldName, field.TypeString, value)
+		_node.Name = value
 	}
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)

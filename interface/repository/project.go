@@ -44,9 +44,10 @@ func (repository *ProjectRepository) FindProjectBySlug(ctx context.Context, user
 		Only(ctx)
 }
 
-func (repository *ProjectRepository) CreateProject(ctx context.Context, slug string, userID uuid.UUID, sortOrder int) error {
+func (repository *ProjectRepository) CreateProject(ctx context.Context, name string, slug string, userID uuid.UUID, sortOrder int) error {
 	return repository.client.Project.
 		Create().
+		SetName(name).
 		SetSlug(slug).
 		SetUserID(userID).
 		SetSortOrder(sortOrder).

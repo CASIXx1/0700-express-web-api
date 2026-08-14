@@ -19,6 +19,7 @@ func (Project) Fields() []ent.Field {
 			Default(uuid.New).
 			Immutable(),
 
+		field.String("name"),
 		field.String("slug").
 			Unique(),
 		field.Int("sort_order"),

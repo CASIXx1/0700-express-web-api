@@ -22,15 +22,15 @@ func (seeder *projectSeeder) Run(ctx context.Context, client *ent.Client) error 
 		return err
 	}
 
-	if err := projectRepository.CreateProject(ctx, "programming", user.ID, 1); err != nil {
+	if err := projectRepository.CreateProject(ctx, "programming", "programming", user.ID, 1); err != nil {
 		return err
 	}
 
-	if err := projectRepository.CreateProject(ctx, "english", user.ID, 2); err != nil {
+	if err := projectRepository.CreateProject(ctx, "english", "english", user.ID, 2); err != nil {
 		return err
 	}
 
-	if err := projectRepository.CreateProject(ctx, "design", user.ID, 3); err != nil {
+	if err := projectRepository.CreateProject(ctx, "design", "design", user.ID, 3); err != nil {
 		return err
 	}
 

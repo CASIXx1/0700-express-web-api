@@ -30,6 +30,20 @@ func (_u *ProjectUpdate) Where(ps ...predicate.Project) *ProjectUpdate {
 	return _u
 }
 
+// SetName sets the "name" field.
+func (_u *ProjectUpdate) SetName(v string) *ProjectUpdate {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableName(v *string) *ProjectUpdate {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
+}
+
 // SetSlug sets the "slug" field.
 func (_u *ProjectUpdate) SetSlug(v string) *ProjectUpdate {
 	_u.mutation.SetSlug(v)
@@ -178,6 +192,9 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(project.FieldName, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
 	}
@@ -279,6 +296,20 @@ type ProjectUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ProjectMutation
+}
+
+// SetName sets the "name" field.
+func (_u *ProjectUpdateOne) SetName(v string) *ProjectUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableName(v *string) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
+	}
+	return _u
 }
 
 // SetSlug sets the "slug" field.
@@ -458,6 +489,9 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Name(); ok {
+		_spec.SetField(project.FieldName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
