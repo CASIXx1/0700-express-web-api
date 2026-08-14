@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type ProjectHandler struct {
@@ -82,6 +84,38 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 			HasPrevious: hasPrevious,
 			HasNext:     hasNext,
 		},
+	})
+}
+
+func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, request *http.Request) {
+	accessToken, err := bearerToken(request)
+	if err != nil {
+		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	slug := mux.Vars(request)["slug"]
+	if slug == "" {
+		writeResponse(writer, http.StatusBadRequest, errorResponse{
+			Message: "missing slug",
+		})
+		return
+	}
+
+	project, err := handler.projectUsecase.FindProjectBySlug(request.Context(), accessToken, slug)
+	if err != nil {
+		log.Printf("failed to find projects: %v", err)
+
+		writeResponse(writer, http.StatusNotFound, errorResponse{
+			Message: "project not found",
+		})
+		return
+	}
+
+	writeResponse(writer, http.StatusOK, normalResponse[projectResponse]{
+		Data: projectResponses(project),
 	})
 }
 
