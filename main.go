@@ -40,15 +40,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// PostgreSQLへの接続
-	// ルーティング
-	// JSONでのレスポンスの書き込みの確認
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]string{
-			"status": "ok",
-		})
-	}).Methods(http.MethodGet)
-
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	userRepository := repository.NewUserRepository(dbClient)
