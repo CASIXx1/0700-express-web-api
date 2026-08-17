@@ -11,8 +11,8 @@ type normalResponse[T any] struct {
 }
 
 type paginatedResponse[T any] struct {
-	Data       T                  `json:"data"`
-	Pagination paginationResponse `json:"pageInfo"`
+	Data     T                  `json:"data"`
+	PageInfo paginationResponse `json:"pageInfo"`
 }
 
 type paginationResponse struct {
