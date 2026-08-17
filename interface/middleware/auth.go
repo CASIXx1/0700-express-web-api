@@ -1,16 +1,23 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
 )
 
-func Auth(next *http.Request) (string, error) {
-	return bearerToken(next)
+func Auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		accessToken, err := bearerToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusUnauthorized)
+			return
+		}
 
-	//ctx := context.WithValue(request.Context(), accessTokenKey, accessToken)
-	//next.ServeHTTP(writer, request.WithContext(ctx))
+		ctx := context.WithValue(request.Context(), "accessToken", accessToken)
+		next.ServeHTTP(writer, request.WithContext(ctx))
+	})
 }
 
 func bearerToken(request *http.Request) (string, error) {
