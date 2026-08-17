@@ -3,6 +3,7 @@ package main
 import (
 	"0700-express-web-api/ent"
 	"0700-express-web-api/interface/handler"
+	"0700-express-web-api/interface/middleware"
 	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/internal/auth"
 	"0700-express-web-api/usecase"
@@ -56,6 +57,8 @@ func main() {
 	r.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
 	r.HandleFunc("/users/projects", projectHandler.FindProjects).Methods(http.MethodGet)
 	r.HandleFunc("/users/projects/{slug}", projectHandler.FindProjectBySlug).Methods(http.MethodGet)
+
+	r.Use(middleware.RequestLog)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
