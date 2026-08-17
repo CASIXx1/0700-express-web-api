@@ -7,7 +7,6 @@ import (
 	"0700-express-web-api/internal/auth"
 	"0700-express-web-api/usecase"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -63,14 +62,5 @@ func main() {
 
 	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatal(err)
-	}
-}
-
-func writeJSON(w http.ResponseWriter, statusCode int, body any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-
-	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Printf("failed to encode response: %v", err)
 	}
 }
