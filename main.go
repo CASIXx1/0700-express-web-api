@@ -55,7 +55,6 @@ func main() {
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
 	r.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
-	r.HandleFunc("/users/projects", projectHandler.FindProjects).Methods(http.MethodGet)
 	r.HandleFunc("/users/projects/{slug}", projectHandler.FindProjectBySlug).Methods(http.MethodGet)
 
 	r.Use(middleware.RequestLog)

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"0700-express-web-api/ent"
-	"0700-express-web-api/interface/middleware"
 	"0700-express-web-api/usecase"
 	"log"
 	"net/http"
@@ -28,16 +27,22 @@ func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
 }
 
 func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request *http.Request) {
-	accessToken, err := middleware.Auth(request)
-	if err != nil {
+	accessToken, ok := request.Context().Value("accessToken").(string)
+	if !ok || accessToken == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
-			Message: err.Error(),
+			Message: "unauthorized",
 		})
 		return
 	}
+	//if accessToken == "" {
+	//	writeResponse(writer, http.StatusUnauthorized, errorResponse{
+	//		Message: err.Error(),
+	//	})
+	//	return
+	//}
 
 	limit := 1
-	limit, err = strconv.Atoi(request.URL.Query().Get("limit"))
+	limit, err := strconv.Atoi(request.URL.Query().Get("limit"))
 	if err != nil {
 		writeResponse(writer, http.StatusBadRequest, errorResponse{
 			Message: err.Error(),
