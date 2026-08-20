@@ -28,8 +28,8 @@ func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
 }
 
 func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request *http.Request) {
-	accessToken, ok := middleware.AccessTokenFromContext(request.Context())
-	if !ok || accessToken == "" {
+	userID, ok := middleware.UserIDFromContext(request.Context())
+	if !ok || userID == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
 		})
@@ -54,7 +54,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	totalCount, err := handler.projectUsecase.CountProjects(request.Context(), accessToken)
+	totalCount, err := handler.projectUsecase.CountProjects(request.Context(), userID)
 	if err != nil {
 		writeResponse(writer, http.StatusInternalServerError, errorResponse{
 			Message: err.Error(),
@@ -66,7 +66,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 	hasPrevious := page > 1
 	hasNext := offset+limit < totalCount
 
-	projects, err := handler.projectUsecase.FindProjects(request.Context(), accessToken, limit, offset)
+	projects, err := handler.projectUsecase.FindProjects(request.Context(), userID, limit, offset)
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
@@ -89,8 +89,8 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 }
 
 func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, request *http.Request) {
-	accessToken, ok := middleware.AccessTokenFromContext(request.Context())
-	if !ok || accessToken == "" {
+	userID, ok := middleware.UserIDFromContext(request.Context())
+	if !ok || userID == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
 		})
@@ -105,7 +105,7 @@ func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, req
 		return
 	}
 
-	project, err := handler.projectUsecase.FindProjectBySlug(request.Context(), accessToken, slug)
+	project, err := handler.projectUsecase.FindProjectBySlug(request.Context(), userID, slug)
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 

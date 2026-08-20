@@ -7,7 +7,6 @@ import (
 
 type ProjectUsecase struct {
 	projectRepository ProjectRepository
-	tokenVerifier     tokenVerifier
 }
 
 type ProjectRepository interface {
@@ -16,39 +15,20 @@ type ProjectRepository interface {
 	CountProjects(ctx context.Context, userID string) (int, error)
 }
 
-func NewProjectUsecase(projectRepository ProjectRepository, tokenVerifier tokenVerifier) *ProjectUsecase {
+func NewProjectUsecase(projectRepository ProjectRepository) *ProjectUsecase {
 	return &ProjectUsecase{
 		projectRepository: projectRepository,
-		tokenVerifier:     tokenVerifier,
 	}
 }
 
-func (usecase *ProjectUsecase) FindProjects(ctx context.Context, accessToken string, limit int, offset int) ([]*ent.Project, error) {
-	userID, err := usecase.tokenVerifier.VerifyAccessToken(accessToken)
-
-	if err != nil {
-		return nil, err
-	}
-
+func (usecase *ProjectUsecase) FindProjects(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error) {
 	return usecase.projectRepository.FindProjects(ctx, userID, limit, offset)
 }
 
-func (usecase *ProjectUsecase) FindProjectBySlug(ctx context.Context, accessToken string, slug string) (*ent.Project, error) {
-	userID, err := usecase.tokenVerifier.VerifyAccessToken(accessToken)
-
-	if err != nil {
-		return nil, err
-	}
-
+func (usecase *ProjectUsecase) FindProjectBySlug(ctx context.Context, userID string, slug string) (*ent.Project, error) {
 	return usecase.projectRepository.FindProjectBySlug(ctx, userID, slug)
 }
 
-func (usecase *ProjectUsecase) CountProjects(ctx context.Context, accessToken string) (int, error) {
-	userID, err := usecase.tokenVerifier.VerifyAccessToken(accessToken)
-
-	if err != nil {
-		return 0, err
-	}
-
+func (usecase *ProjectUsecase) CountProjects(ctx context.Context, userID string) (int, error) {
 	return usecase.projectRepository.CountProjects(ctx, userID)
 }

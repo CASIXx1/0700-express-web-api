@@ -25,15 +25,15 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 }
 
 func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request) {
-	accessToken, ok := middleware.AccessTokenFromContext(request.Context())
-	if !ok || accessToken == "" {
+	userID, ok := middleware.UserIDFromContext(request.Context())
+	if !ok || userID == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	user, err := handler.userUsecase.Me(request.Context(), accessToken)
+	user, err := handler.userUsecase.Me(request.Context(), userID)
 	if err != nil {
 		log.Printf("failed to get user: %v", err)
 
