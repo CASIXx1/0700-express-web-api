@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -16,9 +17,18 @@ type ProjectHandler struct {
 }
 
 type projectResponse struct {
-	ID   string `json:"id"`
-	Slug string `json:"slug"`
-	Name string `json:"name"`
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Slug       string     `json:"slug"`
+	Goal       *string    `json:"goal"`
+	Shouldbe   *string    `json:"shouldbe"`
+	Color      *string    `json:"color"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
+	Deadline   *time.Time `json:"deadline"`
+	StartingAt *time.Time `json:"startingAt"`
+	StartedAt  *time.Time `json:"startedAt"`
+	FinishedAt *time.Time `json:"finishedAt"`
 }
 
 func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
@@ -116,11 +126,7 @@ func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, req
 	}
 
 	writeResponse(writer, http.StatusOK, normalResponse[projectResponse]{
-		Data: projectResponse{
-			ID:   project.ID.String(),
-			Slug: project.Slug,
-			Name: project.Name,
-		},
+		Data: projectResponseFromProject(project),
 	})
 }
 
@@ -128,12 +134,25 @@ func projectResponses(projects []*ent.Project) []projectResponse {
 	responses := []projectResponse{}
 
 	for _, project := range projects {
-		responses = append(responses, projectResponse{
-			ID:   project.ID.String(),
-			Slug: project.Slug,
-			Name: project.Name,
-		})
+		responses = append(responses, projectResponseFromProject(project))
 	}
 
 	return responses
+}
+
+func projectResponseFromProject(project *ent.Project) projectResponse {
+	return projectResponse{
+		ID:         project.ID.String(),
+		Name:       project.Name,
+		Slug:       project.Slug,
+		Goal:       project.Goal,
+		Shouldbe:   project.Shouldbe,
+		Color:      project.Color,
+		CreatedAt:  project.CreatedAt,
+		UpdatedAt:  project.UpdatedAt,
+		Deadline:   project.Deadline,
+		StartingAt: project.StartingAt,
+		StartedAt:  project.StartedAt,
+		FinishedAt: project.FinishedAt,
+	}
 }

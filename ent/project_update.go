@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -55,6 +56,166 @@ func (_u *ProjectUpdate) SetNillableSlug(v *string) *ProjectUpdate {
 	if v != nil {
 		_u.SetSlug(*v)
 	}
+	return _u
+}
+
+// SetGoal sets the "goal" field.
+func (_u *ProjectUpdate) SetGoal(v string) *ProjectUpdate {
+	_u.mutation.SetGoal(v)
+	return _u
+}
+
+// SetNillableGoal sets the "goal" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableGoal(v *string) *ProjectUpdate {
+	if v != nil {
+		_u.SetGoal(*v)
+	}
+	return _u
+}
+
+// ClearGoal clears the value of the "goal" field.
+func (_u *ProjectUpdate) ClearGoal() *ProjectUpdate {
+	_u.mutation.ClearGoal()
+	return _u
+}
+
+// SetShouldbe sets the "shouldbe" field.
+func (_u *ProjectUpdate) SetShouldbe(v string) *ProjectUpdate {
+	_u.mutation.SetShouldbe(v)
+	return _u
+}
+
+// SetNillableShouldbe sets the "shouldbe" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableShouldbe(v *string) *ProjectUpdate {
+	if v != nil {
+		_u.SetShouldbe(*v)
+	}
+	return _u
+}
+
+// ClearShouldbe clears the value of the "shouldbe" field.
+func (_u *ProjectUpdate) ClearShouldbe() *ProjectUpdate {
+	_u.mutation.ClearShouldbe()
+	return _u
+}
+
+// SetColor sets the "color" field.
+func (_u *ProjectUpdate) SetColor(v string) *ProjectUpdate {
+	_u.mutation.SetColor(v)
+	return _u
+}
+
+// SetNillableColor sets the "color" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableColor(v *string) *ProjectUpdate {
+	if v != nil {
+		_u.SetColor(*v)
+	}
+	return _u
+}
+
+// ClearColor clears the value of the "color" field.
+func (_u *ProjectUpdate) ClearColor() *ProjectUpdate {
+	_u.mutation.ClearColor()
+	return _u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_u *ProjectUpdate) SetCreatedAt(v time.Time) *ProjectUpdate {
+	_u.mutation.SetCreatedAt(v)
+	return _u
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableCreatedAt(v *time.Time) *ProjectUpdate {
+	if v != nil {
+		_u.SetCreatedAt(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ProjectUpdate) SetUpdatedAt(v time.Time) *ProjectUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeadline sets the "deadline" field.
+func (_u *ProjectUpdate) SetDeadline(v time.Time) *ProjectUpdate {
+	_u.mutation.SetDeadline(v)
+	return _u
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableDeadline(v *time.Time) *ProjectUpdate {
+	if v != nil {
+		_u.SetDeadline(*v)
+	}
+	return _u
+}
+
+// ClearDeadline clears the value of the "deadline" field.
+func (_u *ProjectUpdate) ClearDeadline() *ProjectUpdate {
+	_u.mutation.ClearDeadline()
+	return _u
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_u *ProjectUpdate) SetStartingAt(v time.Time) *ProjectUpdate {
+	_u.mutation.SetStartingAt(v)
+	return _u
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableStartingAt(v *time.Time) *ProjectUpdate {
+	if v != nil {
+		_u.SetStartingAt(*v)
+	}
+	return _u
+}
+
+// ClearStartingAt clears the value of the "starting_at" field.
+func (_u *ProjectUpdate) ClearStartingAt() *ProjectUpdate {
+	_u.mutation.ClearStartingAt()
+	return _u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_u *ProjectUpdate) SetStartedAt(v time.Time) *ProjectUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableStartedAt(v *time.Time) *ProjectUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (_u *ProjectUpdate) ClearStartedAt() *ProjectUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_u *ProjectUpdate) SetFinishedAt(v time.Time) *ProjectUpdate {
+	_u.mutation.SetFinishedAt(v)
+	return _u
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_u *ProjectUpdate) SetNillableFinishedAt(v *time.Time) *ProjectUpdate {
+	if v != nil {
+		_u.SetFinishedAt(*v)
+	}
+	return _u
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (_u *ProjectUpdate) ClearFinishedAt() *ProjectUpdate {
+	_u.mutation.ClearFinishedAt()
 	return _u
 }
 
@@ -147,6 +308,7 @@ func (_u *ProjectUpdate) RemoveTasks(v ...*Task) *ProjectUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ProjectUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -169,6 +331,14 @@ func (_u *ProjectUpdate) Exec(ctx context.Context) error {
 func (_u *ProjectUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *ProjectUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := project.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -197,6 +367,54 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Goal(); ok {
+		_spec.SetField(project.FieldGoal, field.TypeString, value)
+	}
+	if _u.mutation.GoalCleared() {
+		_spec.ClearField(project.FieldGoal, field.TypeString)
+	}
+	if value, ok := _u.mutation.Shouldbe(); ok {
+		_spec.SetField(project.FieldShouldbe, field.TypeString, value)
+	}
+	if _u.mutation.ShouldbeCleared() {
+		_spec.ClearField(project.FieldShouldbe, field.TypeString)
+	}
+	if value, ok := _u.mutation.Color(); ok {
+		_spec.SetField(project.FieldColor, field.TypeString, value)
+	}
+	if _u.mutation.ColorCleared() {
+		_spec.ClearField(project.FieldColor, field.TypeString)
+	}
+	if value, ok := _u.mutation.CreatedAt(); ok {
+		_spec.SetField(project.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(project.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Deadline(); ok {
+		_spec.SetField(project.FieldDeadline, field.TypeTime, value)
+	}
+	if _u.mutation.DeadlineCleared() {
+		_spec.ClearField(project.FieldDeadline, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartingAt(); ok {
+		_spec.SetField(project.FieldStartingAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartingAtCleared() {
+		_spec.ClearField(project.FieldStartingAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartedAt(); ok {
+		_spec.SetField(project.FieldStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartedAtCleared() {
+		_spec.ClearField(project.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.FinishedAt(); ok {
+		_spec.SetField(project.FieldFinishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.FinishedAtCleared() {
+		_spec.ClearField(project.FieldFinishedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)
@@ -326,6 +544,166 @@ func (_u *ProjectUpdateOne) SetNillableSlug(v *string) *ProjectUpdateOne {
 	return _u
 }
 
+// SetGoal sets the "goal" field.
+func (_u *ProjectUpdateOne) SetGoal(v string) *ProjectUpdateOne {
+	_u.mutation.SetGoal(v)
+	return _u
+}
+
+// SetNillableGoal sets the "goal" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableGoal(v *string) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetGoal(*v)
+	}
+	return _u
+}
+
+// ClearGoal clears the value of the "goal" field.
+func (_u *ProjectUpdateOne) ClearGoal() *ProjectUpdateOne {
+	_u.mutation.ClearGoal()
+	return _u
+}
+
+// SetShouldbe sets the "shouldbe" field.
+func (_u *ProjectUpdateOne) SetShouldbe(v string) *ProjectUpdateOne {
+	_u.mutation.SetShouldbe(v)
+	return _u
+}
+
+// SetNillableShouldbe sets the "shouldbe" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableShouldbe(v *string) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetShouldbe(*v)
+	}
+	return _u
+}
+
+// ClearShouldbe clears the value of the "shouldbe" field.
+func (_u *ProjectUpdateOne) ClearShouldbe() *ProjectUpdateOne {
+	_u.mutation.ClearShouldbe()
+	return _u
+}
+
+// SetColor sets the "color" field.
+func (_u *ProjectUpdateOne) SetColor(v string) *ProjectUpdateOne {
+	_u.mutation.SetColor(v)
+	return _u
+}
+
+// SetNillableColor sets the "color" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableColor(v *string) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetColor(*v)
+	}
+	return _u
+}
+
+// ClearColor clears the value of the "color" field.
+func (_u *ProjectUpdateOne) ClearColor() *ProjectUpdateOne {
+	_u.mutation.ClearColor()
+	return _u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_u *ProjectUpdateOne) SetCreatedAt(v time.Time) *ProjectUpdateOne {
+	_u.mutation.SetCreatedAt(v)
+	return _u
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableCreatedAt(v *time.Time) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetCreatedAt(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ProjectUpdateOne) SetUpdatedAt(v time.Time) *ProjectUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeadline sets the "deadline" field.
+func (_u *ProjectUpdateOne) SetDeadline(v time.Time) *ProjectUpdateOne {
+	_u.mutation.SetDeadline(v)
+	return _u
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableDeadline(v *time.Time) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetDeadline(*v)
+	}
+	return _u
+}
+
+// ClearDeadline clears the value of the "deadline" field.
+func (_u *ProjectUpdateOne) ClearDeadline() *ProjectUpdateOne {
+	_u.mutation.ClearDeadline()
+	return _u
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_u *ProjectUpdateOne) SetStartingAt(v time.Time) *ProjectUpdateOne {
+	_u.mutation.SetStartingAt(v)
+	return _u
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableStartingAt(v *time.Time) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetStartingAt(*v)
+	}
+	return _u
+}
+
+// ClearStartingAt clears the value of the "starting_at" field.
+func (_u *ProjectUpdateOne) ClearStartingAt() *ProjectUpdateOne {
+	_u.mutation.ClearStartingAt()
+	return _u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_u *ProjectUpdateOne) SetStartedAt(v time.Time) *ProjectUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableStartedAt(v *time.Time) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (_u *ProjectUpdateOne) ClearStartedAt() *ProjectUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_u *ProjectUpdateOne) SetFinishedAt(v time.Time) *ProjectUpdateOne {
+	_u.mutation.SetFinishedAt(v)
+	return _u
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_u *ProjectUpdateOne) SetNillableFinishedAt(v *time.Time) *ProjectUpdateOne {
+	if v != nil {
+		_u.SetFinishedAt(*v)
+	}
+	return _u
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (_u *ProjectUpdateOne) ClearFinishedAt() *ProjectUpdateOne {
+	_u.mutation.ClearFinishedAt()
+	return _u
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (_u *ProjectUpdateOne) SetSortOrder(v int) *ProjectUpdateOne {
 	_u.mutation.ResetSortOrder()
@@ -428,6 +806,7 @@ func (_u *ProjectUpdateOne) Select(field string, fields ...string) *ProjectUpdat
 
 // Save executes the query and returns the updated Project entity.
 func (_u *ProjectUpdateOne) Save(ctx context.Context) (*Project, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -450,6 +829,14 @@ func (_u *ProjectUpdateOne) Exec(ctx context.Context) error {
 func (_u *ProjectUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *ProjectUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := project.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -495,6 +882,54 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Goal(); ok {
+		_spec.SetField(project.FieldGoal, field.TypeString, value)
+	}
+	if _u.mutation.GoalCleared() {
+		_spec.ClearField(project.FieldGoal, field.TypeString)
+	}
+	if value, ok := _u.mutation.Shouldbe(); ok {
+		_spec.SetField(project.FieldShouldbe, field.TypeString, value)
+	}
+	if _u.mutation.ShouldbeCleared() {
+		_spec.ClearField(project.FieldShouldbe, field.TypeString)
+	}
+	if value, ok := _u.mutation.Color(); ok {
+		_spec.SetField(project.FieldColor, field.TypeString, value)
+	}
+	if _u.mutation.ColorCleared() {
+		_spec.ClearField(project.FieldColor, field.TypeString)
+	}
+	if value, ok := _u.mutation.CreatedAt(); ok {
+		_spec.SetField(project.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(project.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Deadline(); ok {
+		_spec.SetField(project.FieldDeadline, field.TypeTime, value)
+	}
+	if _u.mutation.DeadlineCleared() {
+		_spec.ClearField(project.FieldDeadline, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartingAt(); ok {
+		_spec.SetField(project.FieldStartingAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartingAtCleared() {
+		_spec.ClearField(project.FieldStartingAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartedAt(); ok {
+		_spec.SetField(project.FieldStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartedAtCleared() {
+		_spec.ClearField(project.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.FinishedAt(); ok {
+		_spec.SetField(project.FieldFinishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.FinishedAtCleared() {
+		_spec.ClearField(project.FieldFinishedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)

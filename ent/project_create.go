@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -31,6 +32,132 @@ func (_c *ProjectCreate) SetName(v string) *ProjectCreate {
 // SetSlug sets the "slug" field.
 func (_c *ProjectCreate) SetSlug(v string) *ProjectCreate {
 	_c.mutation.SetSlug(v)
+	return _c
+}
+
+// SetGoal sets the "goal" field.
+func (_c *ProjectCreate) SetGoal(v string) *ProjectCreate {
+	_c.mutation.SetGoal(v)
+	return _c
+}
+
+// SetNillableGoal sets the "goal" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableGoal(v *string) *ProjectCreate {
+	if v != nil {
+		_c.SetGoal(*v)
+	}
+	return _c
+}
+
+// SetShouldbe sets the "shouldbe" field.
+func (_c *ProjectCreate) SetShouldbe(v string) *ProjectCreate {
+	_c.mutation.SetShouldbe(v)
+	return _c
+}
+
+// SetNillableShouldbe sets the "shouldbe" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableShouldbe(v *string) *ProjectCreate {
+	if v != nil {
+		_c.SetShouldbe(*v)
+	}
+	return _c
+}
+
+// SetColor sets the "color" field.
+func (_c *ProjectCreate) SetColor(v string) *ProjectCreate {
+	_c.mutation.SetColor(v)
+	return _c
+}
+
+// SetNillableColor sets the "color" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableColor(v *string) *ProjectCreate {
+	if v != nil {
+		_c.SetColor(*v)
+	}
+	return _c
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_c *ProjectCreate) SetCreatedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableCreatedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *ProjectCreate) SetUpdatedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableUpdatedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeadline sets the "deadline" field.
+func (_c *ProjectCreate) SetDeadline(v time.Time) *ProjectCreate {
+	_c.mutation.SetDeadline(v)
+	return _c
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableDeadline(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetDeadline(*v)
+	}
+	return _c
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_c *ProjectCreate) SetStartingAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetStartingAt(v)
+	return _c
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableStartingAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetStartingAt(*v)
+	}
+	return _c
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_c *ProjectCreate) SetStartedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableStartedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
+	}
+	return _c
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_c *ProjectCreate) SetFinishedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetFinishedAt(v)
+	return _c
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableFinishedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetFinishedAt(*v)
+	}
 	return _c
 }
 
@@ -115,6 +242,14 @@ func (_c *ProjectCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *ProjectCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := project.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := project.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := project.DefaultID()
 		_c.mutation.SetID(v)
@@ -128,6 +263,12 @@ func (_c *ProjectCreate) check() error {
 	}
 	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Project.slug"`)}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Project.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Project.updated_at"`)}
 	}
 	if _, ok := _c.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Project.sort_order"`)}
@@ -180,6 +321,42 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
 		_node.Slug = value
+	}
+	if value, ok := _c.mutation.Goal(); ok {
+		_spec.SetField(project.FieldGoal, field.TypeString, value)
+		_node.Goal = &value
+	}
+	if value, ok := _c.mutation.Shouldbe(); ok {
+		_spec.SetField(project.FieldShouldbe, field.TypeString, value)
+		_node.Shouldbe = &value
+	}
+	if value, ok := _c.mutation.Color(); ok {
+		_spec.SetField(project.FieldColor, field.TypeString, value)
+		_node.Color = &value
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(project.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(project.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.Deadline(); ok {
+		_spec.SetField(project.FieldDeadline, field.TypeTime, value)
+		_node.Deadline = &value
+	}
+	if value, ok := _c.mutation.StartingAt(); ok {
+		_spec.SetField(project.FieldStartingAt, field.TypeTime, value)
+		_node.StartingAt = &value
+	}
+	if value, ok := _c.mutation.StartedAt(); ok {
+		_spec.SetField(project.FieldStartedAt, field.TypeTime, value)
+		_node.StartedAt = &value
+	}
+	if value, ok := _c.mutation.FinishedAt(); ok {
+		_spec.SetField(project.FieldFinishedAt, field.TypeTime, value)
+		_node.FinishedAt = &value
 	}
 	if value, ok := _c.mutation.SortOrder(); ok {
 		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)

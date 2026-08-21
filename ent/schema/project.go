@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -22,6 +24,32 @@ func (Project) Fields() []ent.Field {
 		field.String("name"),
 		field.String("slug").
 			Unique(),
+		field.String("goal").
+			Optional().
+			Nillable(),
+		field.String("shouldbe").
+			Optional().
+			Nillable(),
+		field.String("color").
+			Optional().
+			Nillable(),
+		field.Time("created_at").
+			Default(time.Now),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now),
+		field.Time("deadline").
+			Optional().
+			Nillable(),
+		field.Time("starting_at").
+			Optional().
+			Nillable(),
+		field.Time("started_at").
+			Optional().
+			Nillable(),
+		field.Time("finished_at").
+			Optional().
+			Nillable(),
 		field.Int("sort_order"),
 		field.UUID("user_id", uuid.UUID{}),
 	}

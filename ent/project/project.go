@@ -3,6 +3,8 @@
 package project
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
@@ -17,6 +19,24 @@ const (
 	FieldName = "name"
 	// FieldSlug holds the string denoting the slug field in the database.
 	FieldSlug = "slug"
+	// FieldGoal holds the string denoting the goal field in the database.
+	FieldGoal = "goal"
+	// FieldShouldbe holds the string denoting the shouldbe field in the database.
+	FieldShouldbe = "shouldbe"
+	// FieldColor holds the string denoting the color field in the database.
+	FieldColor = "color"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeadline holds the string denoting the deadline field in the database.
+	FieldDeadline = "deadline"
+	// FieldStartingAt holds the string denoting the starting_at field in the database.
+	FieldStartingAt = "starting_at"
+	// FieldStartedAt holds the string denoting the started_at field in the database.
+	FieldStartedAt = "started_at"
+	// FieldFinishedAt holds the string denoting the finished_at field in the database.
+	FieldFinishedAt = "finished_at"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
 	FieldSortOrder = "sort_order"
 	// FieldUserID holds the string denoting the user_id field in the database.
@@ -48,6 +68,15 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 	FieldSlug,
+	FieldGoal,
+	FieldShouldbe,
+	FieldColor,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeadline,
+	FieldStartingAt,
+	FieldStartedAt,
+	FieldFinishedAt,
 	FieldSortOrder,
 	FieldUserID,
 }
@@ -63,6 +92,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -83,6 +118,51 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // BySlug orders the results by the slug field.
 func BySlug(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSlug, opts...).ToFunc()
+}
+
+// ByGoal orders the results by the goal field.
+func ByGoal(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGoal, opts...).ToFunc()
+}
+
+// ByShouldbe orders the results by the shouldbe field.
+func ByShouldbe(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShouldbe, opts...).ToFunc()
+}
+
+// ByColor orders the results by the color field.
+func ByColor(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldColor, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeadline orders the results by the deadline field.
+func ByDeadline(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeadline, opts...).ToFunc()
+}
+
+// ByStartingAt orders the results by the starting_at field.
+func ByStartingAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartingAt, opts...).ToFunc()
+}
+
+// ByStartedAt orders the results by the started_at field.
+func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartedAt, opts...).ToFunc()
+}
+
+// ByFinishedAt orders the results by the finished_at field.
+func ByFinishedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFinishedAt, opts...).ToFunc()
 }
 
 // BySortOrder orders the results by the sort_order field.

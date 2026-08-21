@@ -4,9 +4,24 @@ import (
 	"0700-express-web-api/ent"
 	entProject "0700-express-web-api/ent/project"
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
+
+type CreateProjectInput struct {
+	Name       string
+	Slug       string
+	Goal       string
+	Shouldbe   string
+	Color      string
+	Deadline   time.Time
+	StartingAt time.Time
+	StartedAt  time.Time
+	FinishedAt time.Time
+	UserID     uuid.UUID
+	SortOrder  int
+}
 
 type ProjectRepository struct {
 	client *ent.Client
@@ -44,13 +59,20 @@ func (repository *ProjectRepository) FindProjectBySlug(ctx context.Context, user
 		Only(ctx)
 }
 
-func (repository *ProjectRepository) CreateProject(ctx context.Context, name string, slug string, userID uuid.UUID, sortOrder int) error {
+func (repository *ProjectRepository) CreateProject(ctx context.Context, input CreateProjectInput) error {
 	return repository.client.Project.
 		Create().
-		SetName(name).
-		SetSlug(slug).
-		SetUserID(userID).
-		SetSortOrder(sortOrder).
+		SetName(input.Name).
+		SetSlug(input.Slug).
+		SetGoal(input.Goal).
+		SetShouldbe(input.Shouldbe).
+		SetColor(input.Color).
+		SetDeadline(input.Deadline).
+		SetStartingAt(input.StartingAt).
+		SetStartedAt(input.StartedAt).
+		SetFinishedAt(input.FinishedAt).
+		SetUserID(input.UserID).
+		SetSortOrder(input.SortOrder).
 		Exec(ctx)
 }
 
