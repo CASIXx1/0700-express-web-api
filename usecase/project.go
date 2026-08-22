@@ -16,8 +16,6 @@ type ProjectListResult struct {
 
 type PageInfo struct {
 	TotalCount  int
-	Limit       int
-	Page        int
 	HasPrevious bool
 	HasNext     bool
 }
@@ -51,8 +49,6 @@ func (usecase *ProjectUsecase) FindProjects(ctx context.Context, userID string, 
 		Projects: projects,
 		PageInfo: PageInfo{
 			TotalCount:  totalCount,
-			Limit:       limit,
-			Page:        page,
 			HasPrevious: page > 1,
 			HasNext:     offset+limit < totalCount,
 		},

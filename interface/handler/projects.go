@@ -96,8 +96,8 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 	writeResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
 		Data: projectResponses(result.Projects),
 		PageInfo: paginationResponse{
-			Page:        result.PageInfo.Page,
-			Limit:       result.PageInfo.Limit,
+			Page:        page,
+			Limit:       limit,
 			TotalCount:  result.PageInfo.TotalCount,
 			HasPrevious: result.PageInfo.HasPrevious,
 			HasNext:     result.PageInfo.HasNext,
