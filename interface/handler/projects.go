@@ -24,12 +24,12 @@ type projectResponse struct {
 	Shouldbe   *string              `json:"shouldbe"`
 	Color      *string              `json:"color"`
 	Stats      projectStatsResponse `json:"stats"`
-	CreatedAt  time.Time            `json:"createdAt"`
-	UpdatedAt  time.Time            `json:"updatedAt"`
-	Deadline   *time.Time           `json:"deadline"`
-	StartingAt *time.Time           `json:"startingAt"`
-	StartedAt  *time.Time           `json:"startedAt"`
-	FinishedAt *time.Time           `json:"finishedAt"`
+	CreatedAt  string               `json:"createdAt"`
+	UpdatedAt  string               `json:"updatedAt"`
+	Deadline   *string              `json:"deadline"`
+	StartingAt *string              `json:"startingAt"`
+	StartedAt  *string              `json:"startedAt"`
+	FinishedAt *string              `json:"finishedAt"`
 }
 
 type projectStatsResponse struct {
@@ -83,19 +83,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	totalCount, err := handler.projectUsecase.CountProjects(request.Context(), userID)
-	if err != nil {
-		writeResponse(writer, http.StatusInternalServerError, errorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	offset := (page - 1) * limit
-	hasPrevious := page > 1
-	hasNext := offset+limit < totalCount
-
-	projects, err := handler.projectUsecase.FindProjects(request.Context(), userID, limit, offset)
+	result, err := handler.projectUsecase.FindProjects(request.Context(), userID, page, limit)
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
@@ -106,13 +94,13 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 	}
 
 	writeResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
-		Data: projectResponses(projects),
+		Data: projectResponses(result.Projects),
 		PageInfo: paginationResponse{
-			Page:        page,
-			Limit:       limit,
-			TotalCount:  totalCount,
-			HasPrevious: hasPrevious,
-			HasNext:     hasNext,
+			Page:        result.PageInfo.Page,
+			Limit:       result.PageInfo.Limit,
+			TotalCount:  result.PageInfo.TotalCount,
+			HasPrevious: result.PageInfo.HasPrevious,
+			HasNext:     result.PageInfo.HasNext,
 		},
 	})
 }
@@ -168,13 +156,26 @@ func projectResponseFromProject(project *ent.Project) projectResponse {
 		Shouldbe:   project.Shouldbe,
 		Color:      project.Color,
 		Stats:      defaultProjectStatsResponse(),
-		CreatedAt:  project.CreatedAt,
-		UpdatedAt:  project.UpdatedAt,
-		Deadline:   project.Deadline,
-		StartingAt: project.StartingAt,
-		StartedAt:  project.StartedAt,
-		FinishedAt: project.FinishedAt,
+		CreatedAt:  formatDateTime(project.CreatedAt),
+		UpdatedAt:  formatDateTime(project.UpdatedAt),
+		Deadline:   formatOptionalDateTime(project.Deadline),
+		StartingAt: formatOptionalDateTime(project.StartingAt),
+		StartedAt:  formatOptionalDateTime(project.StartedAt),
+		FinishedAt: formatOptionalDateTime(project.FinishedAt),
 	}
+}
+
+func formatDateTime(value time.Time) string {
+	return value.UTC().Format("2006-01-02T15:04:05.000Z")
+}
+
+func formatOptionalDateTime(value *time.Time) *string {
+	if value == nil {
+		return nil
+	}
+
+	formatted := formatDateTime(*value)
+	return &formatted
 }
 
 func defaultProjectStatsResponse() projectStatsResponse {
