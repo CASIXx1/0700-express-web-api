@@ -17,18 +17,37 @@ type ProjectHandler struct {
 }
 
 type projectResponse struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Slug       string     `json:"slug"`
-	Goal       *string    `json:"goal"`
-	Shouldbe   *string    `json:"shouldbe"`
-	Color      *string    `json:"color"`
-	CreatedAt  time.Time  `json:"createdAt"`
-	UpdatedAt  time.Time  `json:"updatedAt"`
-	Deadline   *time.Time `json:"deadline"`
-	StartingAt *time.Time `json:"startingAt"`
-	StartedAt  *time.Time `json:"startedAt"`
-	FinishedAt *time.Time `json:"finishedAt"`
+	ID         string               `json:"id"`
+	Name       string               `json:"name"`
+	Slug       string               `json:"slug"`
+	Goal       *string              `json:"goal"`
+	Shouldbe   *string              `json:"shouldbe"`
+	Color      *string              `json:"color"`
+	Stats      projectStatsResponse `json:"stats"`
+	CreatedAt  time.Time            `json:"createdAt"`
+	UpdatedAt  time.Time            `json:"updatedAt"`
+	Deadline   *time.Time           `json:"deadline"`
+	StartingAt *time.Time           `json:"startingAt"`
+	StartedAt  *time.Time           `json:"startedAt"`
+	FinishedAt *time.Time           `json:"finishedAt"`
+}
+
+type projectStatsResponse struct {
+	Total  int                        `json:"total"`
+	Kinds  projectStatsKindsResponse  `json:"kinds"`
+	States projectStatsStatesResponse `json:"states"`
+}
+
+type projectStatsKindsResponse struct {
+	Milestone int `json:"milestone"`
+	Task      int `json:"task"`
+	Total     int `json:"total"`
+}
+
+type projectStatsStatesResponse struct {
+	Scheduled int `json:"scheduled"`
+	Completed int `json:"completed"`
+	Archived  int `json:"archived"`
 }
 
 func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
@@ -148,11 +167,28 @@ func projectResponseFromProject(project *ent.Project) projectResponse {
 		Goal:       project.Goal,
 		Shouldbe:   project.Shouldbe,
 		Color:      project.Color,
+		Stats:      defaultProjectStatsResponse(),
 		CreatedAt:  project.CreatedAt,
 		UpdatedAt:  project.UpdatedAt,
 		Deadline:   project.Deadline,
 		StartingAt: project.StartingAt,
 		StartedAt:  project.StartedAt,
 		FinishedAt: project.FinishedAt,
+	}
+}
+
+func defaultProjectStatsResponse() projectStatsResponse {
+	return projectStatsResponse{
+		Total: 100,
+		Kinds: projectStatsKindsResponse{
+			Milestone: 20,
+			Task:      30,
+			Total:     50,
+		},
+		States: projectStatsStatesResponse{
+			Scheduled: 20,
+			Completed: 30,
+			Archived:  50,
+		},
 	}
 }
