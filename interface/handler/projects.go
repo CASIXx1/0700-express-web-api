@@ -6,7 +6,6 @@ import (
 	"0700-express-web-api/usecase"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -65,8 +64,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	limit := 1
-	limit, err := strconv.Atoi(request.URL.Query().Get("limit"))
+	paginationRequest, err := parsePaginationParams(request.URL.Query())
 	if err != nil {
 		writeResponse(writer, http.StatusBadRequest, errorResponse{
 			Message: err.Error(),
@@ -74,16 +72,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 		return
 	}
 
-	page := 1
-	page, err = strconv.Atoi(request.URL.Query().Get("page"))
-	if err != nil {
-		writeResponse(writer, http.StatusBadRequest, errorResponse{
-			Message: err.Error(),
-		})
-		return
-	}
-
-	result, err := handler.projectUsecase.FindProjects(request.Context(), userID, page, limit)
+	result, err := handler.projectUsecase.FindProjects(request.Context(), userID, paginationRequest.Page, paginationRequest.Limit)
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
@@ -96,8 +85,8 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 	writeResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
 		Data: projectResponses(result.Projects),
 		PageInfo: paginationResponse{
-			Page:        page,
-			Limit:       limit,
+			Page:        paginationRequest.Page,
+			Limit:       paginationRequest.Limit,
 			TotalCount:  result.PageInfo.TotalCount,
 			HasPrevious: result.PageInfo.HasPrevious,
 			HasNext:     result.PageInfo.HasNext,
