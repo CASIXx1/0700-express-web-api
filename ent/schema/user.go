@@ -20,10 +20,13 @@ func (User) Fields() []ent.Field {
 			Default(uuid.New).
 			Immutable(),
 
-		field.String("username"),
+		field.String("username").
+			NotEmpty(),
 		field.String("email").
+			NotEmpty().
 			Unique(),
-		field.String("password"),
+		field.String("password").
+			NotEmpty(),
 		field.String("status").
 			Default("active"),
 	}

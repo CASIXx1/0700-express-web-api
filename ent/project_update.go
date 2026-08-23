@@ -344,6 +344,16 @@ func (_u *ProjectUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ProjectUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := project.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Project.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := project.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Project.slug": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Project.user"`)
 	}
@@ -842,6 +852,16 @@ func (_u *ProjectUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ProjectUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
+		if err := project.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Project.name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := project.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Project.slug": %w`, err)}
+		}
+	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Project.user"`)
 	}

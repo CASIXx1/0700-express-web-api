@@ -21,8 +21,10 @@ func (Project) Fields() []ent.Field {
 			Default(uuid.New).
 			Immutable(),
 
-		field.String("name"),
+		field.String("name").
+			NotEmpty(),
 		field.String("slug").
+			NotEmpty().
 			Unique(),
 		field.String("goal").
 			Optional().
