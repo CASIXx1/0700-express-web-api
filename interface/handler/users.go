@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"0700-express-web-api/interface/middleware"
 	"0700-express-web-api/usecase"
 	"log"
 	"net/http"
@@ -25,7 +24,7 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 }
 
 func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request) {
-	userID, ok := middleware.UserIDFromContext(request.Context())
+	userID, ok := userIDFromContext(request.Context())
 	if !ok || userID == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",

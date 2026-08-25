@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"context"
+	"0700-express-web-api/interface/handler"
 	"errors"
 	"net/http"
 	"strings"
@@ -10,12 +10,6 @@ import (
 type TokenVerifier interface {
 	VerifyAccessToken(accessToken string) (string, error)
 }
-
-type contextKey string
-
-const (
-	userIDKey contextKey = "userID"
-)
 
 func Auth(tokenVerifier TokenVerifier) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -32,15 +26,10 @@ func Auth(tokenVerifier TokenVerifier) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(request.Context(), userIDKey, userID)
+			ctx := handler.WithUserID(request.Context(), userID)
 			next.ServeHTTP(writer, request.WithContext(ctx))
 		})
 	}
-}
-
-func UserIDFromContext(ctx context.Context) (string, bool) {
-	userID, ok := ctx.Value(userIDKey).(string)
-	return userID, ok
 }
 
 func bearerToken(request *http.Request) (string, error) {

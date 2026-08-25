@@ -2,7 +2,6 @@ package handler
 
 import (
 	"0700-express-web-api/ent"
-	"0700-express-web-api/interface/middleware"
 	"0700-express-web-api/usecase"
 	"log"
 	"net/http"
@@ -56,7 +55,7 @@ func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
 }
 
 func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request *http.Request) {
-	userID, ok := middleware.UserIDFromContext(request.Context())
+	userID, ok := userIDFromContext(request.Context())
 	if !ok || userID == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
@@ -95,7 +94,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 }
 
 func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, request *http.Request) {
-	userID, ok := middleware.UserIDFromContext(request.Context())
+	userID, ok := userIDFromContext(request.Context())
 	if !ok || userID == "" {
 		writeResponse(writer, http.StatusUnauthorized, errorResponse{
 			Message: "unauthorized",
