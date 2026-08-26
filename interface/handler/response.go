@@ -23,11 +23,11 @@ type paginationResponse struct {
 	TotalCount  int  `json:"totalCount"`
 }
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func writeResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
+func WriteResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
 	body, err := json.Marshal(response)
 	if err != nil {
 		log.Printf("failed to encode response: %v", err)

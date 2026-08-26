@@ -58,7 +58,7 @@ func main() {
 	r.Use(middleware.RequestLog)
 
 	s := r.NewRoute().Subrouter()
-	s.Use(middleware.Auth(tokenService))
+	s.Use(middleware.Auth(tokenService, userRepository))
 	s.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
 	s.HandleFunc("/users/projects", projectHandler.FindProjects).Methods(http.MethodGet)
 	s.HandleFunc("/users/projects/{slug}", projectHandler.FindProjectBySlug).Methods(http.MethodGet)

@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"0700-express-web-api/ent"
 	"0700-express-web-api/interface/handler"
+	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -11,18 +13,34 @@ type TokenVerifier interface {
 	VerifyAccessToken(accessToken string) (string, error)
 }
 
-func Auth(tokenVerifier TokenVerifier) func(http.Handler) http.Handler {
+type UserFinder interface {
+	FindUserByID(ctx context.Context, userID string) (*ent.User, error)
+}
+
+func Auth(tokenVerifier TokenVerifier, userFinder UserFinder) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			accessToken, err := bearerToken(request)
 			if err != nil {
-				http.Error(writer, err.Error(), http.StatusUnauthorized)
+				handler.WriteResponse(writer, http.StatusUnauthorized, handler.ErrorResponse{
+					Message: err.Error(),
+				})
 				return
 			}
 
 			userID, err := tokenVerifier.VerifyAccessToken(accessToken)
 			if err != nil {
-				http.Error(writer, err.Error(), http.StatusUnauthorized)
+				handler.WriteResponse(writer, http.StatusUnauthorized, handler.ErrorResponse{
+					Message: err.Error(),
+				})
+				return
+			}
+
+			user, err := userFinder.FindUserByID(request.Context(), userID)
+			if err != nil || user == nil || user.Status != "active" {
+				handler.WriteResponse(writer, http.StatusUnauthorized, handler.ErrorResponse{
+					Message: "unauthorized",
+				})
 				return
 			}
 

@@ -57,7 +57,7 @@ func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
 func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
 	if !ok || userID == "" {
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
@@ -65,7 +65,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 
 	paginationRequest, err := parsePaginationParams(request.URL.Query())
 	if err != nil {
-		writeResponse(writer, http.StatusBadRequest, errorResponse{
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -75,13 +75,13 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	writeResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
+	WriteResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
 		Data: projectResponses(result.Projects),
 		PageInfo: paginationResponse{
 			Page:        paginationRequest.Page,
@@ -96,7 +96,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
 	if !ok || userID == "" {
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
@@ -104,7 +104,7 @@ func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, req
 
 	slug := mux.Vars(request)["slug"]
 	if slug == "" {
-		writeResponse(writer, http.StatusBadRequest, errorResponse{
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: "missing slug",
 		})
 		return
@@ -114,13 +114,13 @@ func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, req
 	if err != nil {
 		log.Printf("failed to find projects: %v", err)
 
-		writeResponse(writer, http.StatusNotFound, errorResponse{
+		WriteResponse(writer, http.StatusNotFound, ErrorResponse{
 			Message: "project not found",
 		})
 		return
 	}
 
-	writeResponse(writer, http.StatusOK, normalResponse[projectResponse]{
+	WriteResponse(writer, http.StatusOK, normalResponse[projectResponse]{
 		Data: projectResponseFromProject(project),
 	})
 }
