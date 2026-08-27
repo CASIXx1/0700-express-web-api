@@ -4,43 +4,32 @@ import (
 	"0700-express-web-api/ent"
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
-type fakeProjectRepository struct {
-	receivedUserID string
-	receivedLimit  int
-	receivedOffset int
-	totalCount     int
-	projects       []*ent.Project
-}
-
-func (repository *fakeProjectRepository) FindProjects(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error) {
-	repository.receivedUserID = userID
-	repository.receivedLimit = limit
-	repository.receivedOffset = offset
-
-	return repository.projects, nil
-}
-
-func (repository *fakeProjectRepository) FindProjectBySlug(ctx context.Context, userID string, slug string) (*ent.Project, error) {
-	return nil, nil
-}
-
-func (repository *fakeProjectRepository) CountProjects(ctx context.Context, userID string) (int, error) {
-	return repository.totalCount, nil
-}
-
 func TestProjectUsecaseFindProjects(t *testing.T) {
-	repository := &fakeProjectRepository{
-		totalCount: 3,
-		projects:   []*ent.Project{},
-	}
+	ctx := context.Background()
+	projects := []*ent.Project{}
+
+	ctrl := gomock.NewController(t)
+	repository := NewMockProjectRepository(ctrl)
+	repository.EXPECT().CountProjects(ctx, "user-id").Return(3, nil)
+	repository.EXPECT().FindProjects(ctx, "user-id", 1, 1).Return(projects, nil)
+
 	projectUsecase := NewProjectUsecase(repository)
 
-	result, err := projectUsecase.FindProjects(context.Background(), "user-id", 2, 1)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
+	result, err := projectUsecase.FindProjects(ctx, "user-id", 2, 1)
+	require.NoError(t, err)
 
-	_ = result
+	assert.Equal(t, &ProjectListResult{
+		Projects: projects,
+		PageInfo: PageInfo{
+			TotalCount:  3,
+			HasPrevious: true,
+			HasNext:     true,
+		},
+	}, result)
 }
