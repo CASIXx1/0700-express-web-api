@@ -6,10 +6,11 @@ import (
 	"strconv"
 )
 
-type contextKey string
+type contextKey int
 
 const (
-	userIDKey contextKey = "userID"
+	userIDKey contextKey = iota
+	requestTimestampKey
 )
 
 type paginationRequest struct {
