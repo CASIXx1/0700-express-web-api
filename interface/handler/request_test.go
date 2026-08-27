@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -66,9 +66,7 @@ func TestParsePaginationParams(t *testing.T) {
 
 			require.NoError(t, err)
 
-			if diff := cmp.Diff(test.expectedResult, result); diff != "" {
-				t.Fatalf("paginationRequest diff:\n%s", diff)
-			}
+			assert.Equal(t, test.expectedResult, result)
 		})
 	}
 }
