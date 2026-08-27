@@ -10,7 +10,6 @@ type contextKey int
 
 const (
 	userIDKey contextKey = iota
-	requestTimestampKey
 )
 
 type paginationRequest struct {
