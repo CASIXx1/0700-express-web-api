@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"errors"
 	"net/url"
-	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParsePaginationParams(t *testing.T) {
@@ -38,11 +39,7 @@ func TestParsePaginationParams(t *testing.T) {
 				return values
 			},
 			expectedResult: nil,
-			expectedError: &strconv.NumError{
-				Func: "Atoi",
-				Num:  "abc",
-				Err:  strconv.ErrSyntax,
-			},
+			expectedError:  strconv.ErrSyntax,
 		},
 		{
 			name: "error case: page is not a number",
@@ -53,11 +50,7 @@ func TestParsePaginationParams(t *testing.T) {
 				return values
 			},
 			expectedResult: nil,
-			expectedError: &strconv.NumError{
-				Func: "Atoi",
-				Num:  "abc",
-				Err:  strconv.ErrSyntax,
-			},
+			expectedError:  strconv.ErrSyntax,
 		},
 	}
 
@@ -66,24 +59,15 @@ func TestParsePaginationParams(t *testing.T) {
 			input := test.input()
 
 			result, err := parsePaginationParams(input)
-			if err != nil {
-				if test.expectedError == nil {
-					t.Fatalf("got unexpected error %v", err)
-				}
-
-				if !errors.Is(err, test.expectedError) && !reflect.DeepEqual(test.expectedError, err) {
-					t.Fatalf("expected error %v but got %v", test.expectedError, err)
-				}
-
+			if test.expectedError != nil {
+				require.ErrorIs(t, err, test.expectedError)
 				return
 			}
 
-			if test.expectedError != nil {
-				t.Fatal("expected error, got nil")
-			}
+			require.NoError(t, err)
 
-			if !reflect.DeepEqual(test.expectedResult, result) {
-				t.Fatalf("expected %+v but got %+v", test.expectedResult, result)
+			if diff := cmp.Diff(test.expectedResult, result); diff != "" {
+				t.Fatalf("paginationRequest diff:\n%s", diff)
 			}
 		})
 	}
