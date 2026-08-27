@@ -39,6 +39,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.Use(middleware.RequestLog)
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
@@ -54,8 +55,6 @@ func main() {
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
-
-	r.Use(middleware.RequestLog)
 
 	authRequired := r.NewRoute().Subrouter()
 	authRequired.Use(middleware.Auth(tokenService, userRepository))
