@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -19,10 +20,13 @@ func (User) Fields() []ent.Field {
 			Default(uuid.New).
 			Immutable(),
 
-		field.String("username"),
+		field.String("username").
+			NotEmpty(),
 		field.String("email").
+			NotEmpty().
 			Unique(),
-		field.String("password"),
+		field.String("password").
+			NotEmpty(),
 		field.String("status").
 			Default("active"),
 	}
@@ -30,5 +34,7 @@ func (User) Fields() []ent.Field {
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("projects", Project.Type),
+	}
 }

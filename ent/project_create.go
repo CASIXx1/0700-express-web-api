@@ -5,9 +5,11 @@ package ent
 import (
 	"0700-express-web-api/ent/project"
 	"0700-express-web-api/ent/task"
+	"0700-express-web-api/ent/user"
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -21,9 +23,153 @@ type ProjectCreate struct {
 	hooks    []Hook
 }
 
+// SetName sets the "name" field.
+func (_c *ProjectCreate) SetName(v string) *ProjectCreate {
+	_c.mutation.SetName(v)
+	return _c
+}
+
 // SetSlug sets the "slug" field.
 func (_c *ProjectCreate) SetSlug(v string) *ProjectCreate {
 	_c.mutation.SetSlug(v)
+	return _c
+}
+
+// SetGoal sets the "goal" field.
+func (_c *ProjectCreate) SetGoal(v string) *ProjectCreate {
+	_c.mutation.SetGoal(v)
+	return _c
+}
+
+// SetNillableGoal sets the "goal" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableGoal(v *string) *ProjectCreate {
+	if v != nil {
+		_c.SetGoal(*v)
+	}
+	return _c
+}
+
+// SetShouldbe sets the "shouldbe" field.
+func (_c *ProjectCreate) SetShouldbe(v string) *ProjectCreate {
+	_c.mutation.SetShouldbe(v)
+	return _c
+}
+
+// SetNillableShouldbe sets the "shouldbe" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableShouldbe(v *string) *ProjectCreate {
+	if v != nil {
+		_c.SetShouldbe(*v)
+	}
+	return _c
+}
+
+// SetColor sets the "color" field.
+func (_c *ProjectCreate) SetColor(v string) *ProjectCreate {
+	_c.mutation.SetColor(v)
+	return _c
+}
+
+// SetNillableColor sets the "color" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableColor(v *string) *ProjectCreate {
+	if v != nil {
+		_c.SetColor(*v)
+	}
+	return _c
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_c *ProjectCreate) SetCreatedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableCreatedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *ProjectCreate) SetUpdatedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableUpdatedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeadline sets the "deadline" field.
+func (_c *ProjectCreate) SetDeadline(v time.Time) *ProjectCreate {
+	_c.mutation.SetDeadline(v)
+	return _c
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableDeadline(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetDeadline(*v)
+	}
+	return _c
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_c *ProjectCreate) SetStartingAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetStartingAt(v)
+	return _c
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableStartingAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetStartingAt(*v)
+	}
+	return _c
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_c *ProjectCreate) SetStartedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableStartedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
+	}
+	return _c
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_c *ProjectCreate) SetFinishedAt(v time.Time) *ProjectCreate {
+	_c.mutation.SetFinishedAt(v)
+	return _c
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_c *ProjectCreate) SetNillableFinishedAt(v *time.Time) *ProjectCreate {
+	if v != nil {
+		_c.SetFinishedAt(*v)
+	}
+	return _c
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (_c *ProjectCreate) SetSortOrder(v int) *ProjectCreate {
+	_c.mutation.SetSortOrder(v)
+	return _c
+}
+
+// SetUserID sets the "user_id" field.
+func (_c *ProjectCreate) SetUserID(v uuid.UUID) *ProjectCreate {
+	_c.mutation.SetUserID(v)
 	return _c
 }
 
@@ -39,6 +185,11 @@ func (_c *ProjectCreate) SetNillableID(v *uuid.UUID) *ProjectCreate {
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (_c *ProjectCreate) SetUser(v *User) *ProjectCreate {
+	return _c.SetUserID(v.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
@@ -91,6 +242,14 @@ func (_c *ProjectCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *ProjectCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := project.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := project.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := project.DefaultID()
 		_c.mutation.SetID(v)
@@ -99,8 +258,36 @@ func (_c *ProjectCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ProjectCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Project.name"`)}
+	}
+	if v, ok := _c.mutation.Name(); ok {
+		if err := project.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Project.name": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Slug(); !ok {
 		return &ValidationError{Name: "slug", err: errors.New(`ent: missing required field "Project.slug"`)}
+	}
+	if v, ok := _c.mutation.Slug(); ok {
+		if err := project.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Project.slug": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Project.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Project.updated_at"`)}
+	}
+	if _, ok := _c.mutation.SortOrder(); !ok {
+		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Project.sort_order"`)}
+	}
+	if _, ok := _c.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Project.user_id"`)}
+	}
+	if len(_c.mutation.UserIDs()) == 0 {
+		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Project.user"`)}
 	}
 	return nil
 }
@@ -137,9 +324,70 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.Name(); ok {
+		_spec.SetField(project.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(project.FieldSlug, field.TypeString, value)
 		_node.Slug = value
+	}
+	if value, ok := _c.mutation.Goal(); ok {
+		_spec.SetField(project.FieldGoal, field.TypeString, value)
+		_node.Goal = &value
+	}
+	if value, ok := _c.mutation.Shouldbe(); ok {
+		_spec.SetField(project.FieldShouldbe, field.TypeString, value)
+		_node.Shouldbe = &value
+	}
+	if value, ok := _c.mutation.Color(); ok {
+		_spec.SetField(project.FieldColor, field.TypeString, value)
+		_node.Color = &value
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(project.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(project.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.Deadline(); ok {
+		_spec.SetField(project.FieldDeadline, field.TypeTime, value)
+		_node.Deadline = &value
+	}
+	if value, ok := _c.mutation.StartingAt(); ok {
+		_spec.SetField(project.FieldStartingAt, field.TypeTime, value)
+		_node.StartingAt = &value
+	}
+	if value, ok := _c.mutation.StartedAt(); ok {
+		_spec.SetField(project.FieldStartedAt, field.TypeTime, value)
+		_node.StartedAt = &value
+	}
+	if value, ok := _c.mutation.FinishedAt(); ok {
+		_spec.SetField(project.FieldFinishedAt, field.TypeTime, value)
+		_node.FinishedAt = &value
+	}
+	if value, ok := _c.mutation.SortOrder(); ok {
+		_spec.SetField(project.FieldSortOrder, field.TypeInt, value)
+		_node.SortOrder = value
+	}
+	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   project.UserTable,
+			Columns: []string{project.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.TasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

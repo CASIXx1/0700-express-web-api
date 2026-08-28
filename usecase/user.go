@@ -7,29 +7,18 @@ import (
 
 type UserUsecase struct {
 	userRepository UserRepository
-	tokenVerifier  tokenVerifier
 }
 
 type UserRepository interface {
 	FindUserByID(ctx context.Context, userID string) (*ent.User, error)
 }
 
-type tokenVerifier interface {
-	VerifyAccessToken(accessToken string) (string, error)
-}
-
-func NewUserUsecase(userRepository UserRepository, tokenVerifier tokenVerifier) *UserUsecase {
+func NewUserUsecase(userRepository UserRepository) *UserUsecase {
 	return &UserUsecase{
 		userRepository: userRepository,
-		tokenVerifier:  tokenVerifier,
 	}
 }
 
-func (usecase *UserUsecase) Me(ctx context.Context, accessToken string) (*ent.User, error) {
-	userID, err := usecase.tokenVerifier.VerifyAccessToken(accessToken)
-	if err != nil {
-		return nil, err
-	}
-
+func (usecase *UserUsecase) Me(ctx context.Context, userID string) (*ent.User, error) {
 	return usecase.userRepository.FindUserByID(ctx, userID)
 }

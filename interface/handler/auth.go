@@ -47,7 +47,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 	ctx := Request.Context()
 
 	if err := json.NewDecoder(Request.Body).Decode(&loginRequest); err != nil {
-		writeResponse(writer, http.StatusBadRequest, errorResponse{
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -55,7 +55,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 
 	result, err := handler.authUsecase.Login(ctx, loginRequest.Email, loginRequest.Password)
 	if err != nil {
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -67,7 +67,7 @@ func (handler *Handler) Login(writer http.ResponseWriter, Request *http.Request)
 		RefreshToken: result.RefreshToken,
 	}
 
-	writeResponse(writer, http.StatusOK, normalResponse[loginResponse]{
+	WriteResponse(writer, http.StatusOK, normalResponse[loginResponse]{
 		Data: loginRes,
 	})
 }
@@ -77,7 +77,7 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	ctx := Request.Context()
 
 	if err := json.NewDecoder(Request.Body).Decode(&signUp); err != nil {
-		writeResponse(writer, http.StatusBadRequest, errorResponse{
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -86,13 +86,13 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 	result, err := handler.authUsecase.SignUp(ctx, signUp.Username, signUp.Email, signUp.Password)
 	if err != nil {
 		if errors.Is(err, usecase.ErrUserAlreadyExists) {
-			writeResponse(writer, http.StatusConflict, errorResponse{
+			WriteResponse(writer, http.StatusConflict, ErrorResponse{
 				Message: err.Error(),
 			})
 			return
 		}
 
-		writeResponse(writer, http.StatusBadRequest, errorResponse{
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
 		})
 		return
@@ -104,7 +104,7 @@ func (handler *Handler) SignUp(writer http.ResponseWriter, Request *http.Request
 		RefreshToken: result.RefreshToken,
 	}
 
-	writeResponse(writer, http.StatusOK, normalResponse[signUpResponse]{
+	WriteResponse(writer, http.StatusOK, normalResponse[signUpResponse]{
 		Data: signUpRes,
 	})
 }

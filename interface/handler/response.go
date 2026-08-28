@@ -10,11 +10,24 @@ type normalResponse[T any] struct {
 	Data T `json:"data"`
 }
 
-type errorResponse struct {
+type paginatedResponse[T any] struct {
+	Data     T                  `json:"data"`
+	PageInfo paginationResponse `json:"pageInfo"`
+}
+
+type paginationResponse struct {
+	Page        int  `json:"page"`
+	Limit       int  `json:"limit"`
+	HasNext     bool `json:"hasNext"`
+	HasPrevious bool `json:"hasPrevious"`
+	TotalCount  int  `json:"totalCount"`
+}
+
+type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func writeResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
+func WriteResponse[T any](writer http.ResponseWriter, statusCode int, response T) {
 	body, err := json.Marshal(response)
 	if err != nil {
 		log.Printf("failed to encode response: %v", err)

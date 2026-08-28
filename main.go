@@ -3,11 +3,11 @@ package main
 import (
 	"0700-express-web-api/ent"
 	"0700-express-web-api/interface/handler"
+	"0700-express-web-api/interface/middleware"
 	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/internal/auth"
 	"0700-express-web-api/usecase"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -39,42 +39,33 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-
-	// PostgreSQLへの接続
-	// ルーティング
-	// JSONでのレスポンスの書き込みの確認
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]string{
-			"status": "ok",
-		})
-	}).Methods(http.MethodGet)
+	r.Use(middleware.RequestLog)
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	userRepository := repository.NewUserRepository(dbClient)
+	projectRepository := repository.NewProjectRepository(dbClient)
 	tokenService := auth.NewTokenService(jwtSecret)
 	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordVerifier(), tokenService)
-	userUsecase := usecase.NewUserUsecase(userRepository, tokenService)
+	userUsecase := usecase.NewUserUsecase(userRepository)
+	projectUsecase := usecase.NewProjectUsecase(projectRepository)
 	authHandler := handler.NewHandler(authUsecase)
 	userHandler := handler.NewUserHandler(userUsecase)
+	projectHandler := handler.NewProjectHandler(projectUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
-	r.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
+
+	authRequired := r.NewRoute().Subrouter()
+	authRequired.Use(middleware.Auth(tokenService, userRepository))
+	authRequired.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/projects", projectHandler.FindProjects).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/projects/{slug}", projectHandler.FindProjectBySlug).Methods(http.MethodGet)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
 
 	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatal(err)
-	}
-}
-
-func writeJSON(w http.ResponseWriter, statusCode int, body any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-
-	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Printf("failed to encode response: %v", err)
 	}
 }

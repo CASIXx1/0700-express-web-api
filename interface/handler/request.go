@@ -1,25 +1,44 @@
 package handler
 
 import (
-	"errors"
-	"net/http"
-	"strings"
+	"context"
+	"net/url"
+	"strconv"
 )
 
-func bearerToken(request *http.Request) (string, error) {
-	authorization := request.Header.Get("Authorization")
-	if authorization == "" {
-		return "", errors.New("missing authorization")
+type contextKey int
+
+const (
+	userIDKey contextKey = iota
+)
+
+type paginationRequest struct {
+	Limit int
+	Page  int
+}
+
+func WithUserID(ctx context.Context, userID string) context.Context {
+	return context.WithValue(ctx, userIDKey, userID)
+}
+
+func userIDFromContext(ctx context.Context) (string, bool) {
+	userID, ok := ctx.Value(userIDKey).(string)
+	return userID, ok
+}
+
+func parsePaginationParams(values url.Values) (*paginationRequest, error) {
+	limit, err := strconv.Atoi(values.Get("limit"))
+	if err != nil {
+		return nil, err
 	}
 
-	if !strings.HasPrefix(authorization, "Bearer ") {
-		return "", errors.New("invalid authorization")
+	page, err := strconv.Atoi(values.Get("page"))
+	if err != nil {
+		return nil, err
 	}
 
-	token := strings.TrimPrefix(authorization, "Bearer ")
-	if token == "" {
-		return "", errors.New("invalid authorization")
-	}
-
-	return token, nil
+	return &paginationRequest{
+		Limit: limit,
+		Page:  page,
+	}, nil
 }

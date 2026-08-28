@@ -24,25 +24,25 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 }
 
 func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request) {
-	accessToken, err := bearerToken(request)
-	if err != nil {
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+	userID, ok := userIDFromContext(request.Context())
+	if !ok || userID == "" {
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	user, err := handler.userUsecase.Me(request.Context(), accessToken)
+	user, err := handler.userUsecase.Me(request.Context(), userID)
 	if err != nil {
 		log.Printf("failed to get user: %v", err)
 
-		writeResponse(writer, http.StatusUnauthorized, errorResponse{
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	writeResponse(writer, http.StatusOK, normalResponse[meResponse]{
+	WriteResponse(writer, http.StatusOK, normalResponse[meResponse]{
 		Data: meResponse{
 			ID:       user.ID.String(),
 			Username: user.Username,
