@@ -12,3 +12,6 @@ test/user:
 
 test/projects:
 	API_BASE_URL=http://localhost:8080 npx vitest run test/tests/projects.test.ts
+
+test/tasks:
+	API_BASE_URL=http://localhost:8080 npx vitest run test/tests/tasks.test.ts

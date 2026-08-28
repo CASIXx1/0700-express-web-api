@@ -52,6 +52,7 @@ func main() {
 	authHandler := handler.NewHandler(authUsecase)
 	userHandler := handler.NewUserHandler(userUsecase)
 	projectHandler := handler.NewProjectHandler(projectUsecase)
+	taskHandler := handler.NewTaskHandler(projectUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
@@ -61,6 +62,7 @@ func main() {
 	authRequired.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
 	authRequired.HandleFunc("/users/projects", projectHandler.FindProjects).Methods(http.MethodGet)
 	authRequired.HandleFunc("/users/projects/{slug}", projectHandler.FindProjectBySlug).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/tasks", taskHandler.FindTasks).Methods(http.MethodGet)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)
