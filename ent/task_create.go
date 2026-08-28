@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -27,6 +28,20 @@ func (_c *TaskCreate) SetTitle(v string) *TaskCreate {
 	return _c
 }
 
+// SetDescription sets the "description" field.
+func (_c *TaskCreate) SetDescription(v string) *TaskCreate {
+	_c.mutation.SetDescription(v)
+	return _c
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableDescription(v *string) *TaskCreate {
+	if v != nil {
+		_c.SetDescription(*v)
+	}
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *TaskCreate) SetStatus(v task.Status) *TaskCreate {
 	_c.mutation.SetStatus(v)
@@ -37,6 +52,118 @@ func (_c *TaskCreate) SetStatus(v task.Status) *TaskCreate {
 func (_c *TaskCreate) SetNillableStatus(v *task.Status) *TaskCreate {
 	if v != nil {
 		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_c *TaskCreate) SetCreatedAt(v time.Time) *TaskCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableCreatedAt(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *TaskCreate) SetUpdatedAt(v time.Time) *TaskCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableUpdatedAt(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_c *TaskCreate) SetFinishedAt(v time.Time) *TaskCreate {
+	_c.mutation.SetFinishedAt(v)
+	return _c
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableFinishedAt(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetFinishedAt(*v)
+	}
+	return _c
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_c *TaskCreate) SetStartedAt(v time.Time) *TaskCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableStartedAt(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
+	}
+	return _c
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_c *TaskCreate) SetArchivedAt(v time.Time) *TaskCreate {
+	_c.mutation.SetArchivedAt(v)
+	return _c
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableArchivedAt(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetArchivedAt(*v)
+	}
+	return _c
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_c *TaskCreate) SetStartingAt(v time.Time) *TaskCreate {
+	_c.mutation.SetStartingAt(v)
+	return _c
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableStartingAt(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetStartingAt(*v)
+	}
+	return _c
+}
+
+// SetDeadline sets the "deadline" field.
+func (_c *TaskCreate) SetDeadline(v time.Time) *TaskCreate {
+	_c.mutation.SetDeadline(v)
+	return _c
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableDeadline(v *time.Time) *TaskCreate {
+	if v != nil {
+		_c.SetDeadline(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *TaskCreate) SetID(v uuid.UUID) *TaskCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *TaskCreate) SetNillableID(v *uuid.UUID) *TaskCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -87,9 +214,25 @@ func (_c *TaskCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *TaskCreate) defaults() {
+	if _, ok := _c.mutation.Description(); !ok {
+		v := task.DefaultDescription
+		_c.mutation.SetDescription(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := task.DefaultStatus
 		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := task.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := task.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := task.DefaultID()
+		_c.mutation.SetID(v)
 	}
 }
 
@@ -103,6 +246,9 @@ func (_c *TaskCreate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Task.title": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Task.description"`)}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Task.status"`)}
 	}
@@ -110,6 +256,12 @@ func (_c *TaskCreate) check() error {
 		if err := task.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Task.status": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Task.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Task.updated_at"`)}
 	}
 	if len(_c.mutation.ProjectIDs()) == 0 {
 		return &ValidationError{Name: "project", err: errors.New(`ent: missing required edge "Task.project"`)}
@@ -128,8 +280,13 @@ func (_c *TaskCreate) sqlSave(ctx context.Context) (*Task, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -138,15 +295,51 @@ func (_c *TaskCreate) sqlSave(ctx context.Context) (*Task, error) {
 func (_c *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Task{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(task.Table, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(task.Table, sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(task.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
+	if value, ok := _c.mutation.Description(); ok {
+		_spec.SetField(task.FieldDescription, field.TypeString, value)
+		_node.Description = value
+	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(task.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(task.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(task.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.FinishedAt(); ok {
+		_spec.SetField(task.FieldFinishedAt, field.TypeTime, value)
+		_node.FinishedAt = &value
+	}
+	if value, ok := _c.mutation.StartedAt(); ok {
+		_spec.SetField(task.FieldStartedAt, field.TypeTime, value)
+		_node.StartedAt = &value
+	}
+	if value, ok := _c.mutation.ArchivedAt(); ok {
+		_spec.SetField(task.FieldArchivedAt, field.TypeTime, value)
+		_node.ArchivedAt = &value
+	}
+	if value, ok := _c.mutation.StartingAt(); ok {
+		_spec.SetField(task.FieldStartingAt, field.TypeTime, value)
+		_node.StartingAt = &value
+	}
+	if value, ok := _c.mutation.Deadline(); ok {
+		_spec.SetField(task.FieldDeadline, field.TypeTime, value)
+		_node.Deadline = &value
 	}
 	if nodes := _c.mutation.ProjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -213,10 +406,6 @@ func (_c *TaskCreateBulk) Save(ctx context.Context) ([]*Task, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

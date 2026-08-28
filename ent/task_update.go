@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -43,6 +44,20 @@ func (_u *TaskUpdate) SetNillableTitle(v *string) *TaskUpdate {
 	return _u
 }
 
+// SetDescription sets the "description" field.
+func (_u *TaskUpdate) SetDescription(v string) *TaskUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableDescription(v *string) *TaskUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *TaskUpdate) SetStatus(v task.Status) *TaskUpdate {
 	_u.mutation.SetStatus(v)
@@ -54,6 +69,126 @@ func (_u *TaskUpdate) SetNillableStatus(v *task.Status) *TaskUpdate {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
+	return _u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_u *TaskUpdate) SetCreatedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetCreatedAt(v)
+	return _u
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableCreatedAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetCreatedAt(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *TaskUpdate) SetUpdatedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_u *TaskUpdate) SetFinishedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetFinishedAt(v)
+	return _u
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableFinishedAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetFinishedAt(*v)
+	}
+	return _u
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (_u *TaskUpdate) ClearFinishedAt() *TaskUpdate {
+	_u.mutation.ClearFinishedAt()
+	return _u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_u *TaskUpdate) SetStartedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableStartedAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (_u *TaskUpdate) ClearStartedAt() *TaskUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_u *TaskUpdate) SetArchivedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetArchivedAt(v)
+	return _u
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableArchivedAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetArchivedAt(*v)
+	}
+	return _u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (_u *TaskUpdate) ClearArchivedAt() *TaskUpdate {
+	_u.mutation.ClearArchivedAt()
+	return _u
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_u *TaskUpdate) SetStartingAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetStartingAt(v)
+	return _u
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableStartingAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetStartingAt(*v)
+	}
+	return _u
+}
+
+// ClearStartingAt clears the value of the "starting_at" field.
+func (_u *TaskUpdate) ClearStartingAt() *TaskUpdate {
+	_u.mutation.ClearStartingAt()
+	return _u
+}
+
+// SetDeadline sets the "deadline" field.
+func (_u *TaskUpdate) SetDeadline(v time.Time) *TaskUpdate {
+	_u.mutation.SetDeadline(v)
+	return _u
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableDeadline(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetDeadline(*v)
+	}
+	return _u
+}
+
+// ClearDeadline clears the value of the "deadline" field.
+func (_u *TaskUpdate) ClearDeadline() *TaskUpdate {
+	_u.mutation.ClearDeadline()
 	return _u
 }
 
@@ -81,6 +216,7 @@ func (_u *TaskUpdate) ClearProject() *TaskUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *TaskUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -106,6 +242,14 @@ func (_u *TaskUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *TaskUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := task.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *TaskUpdate) check() error {
 	if v, ok := _u.mutation.Title(); ok {
@@ -128,7 +272,7 @@ func (_u *TaskUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -139,8 +283,47 @@ func (_u *TaskUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(task.FieldTitle, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(task.FieldDescription, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(task.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.CreatedAt(); ok {
+		_spec.SetField(task.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(task.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.FinishedAt(); ok {
+		_spec.SetField(task.FieldFinishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.FinishedAtCleared() {
+		_spec.ClearField(task.FieldFinishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartedAt(); ok {
+		_spec.SetField(task.FieldStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartedAtCleared() {
+		_spec.ClearField(task.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ArchivedAt(); ok {
+		_spec.SetField(task.FieldArchivedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ArchivedAtCleared() {
+		_spec.ClearField(task.FieldArchivedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartingAt(); ok {
+		_spec.SetField(task.FieldStartingAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartingAtCleared() {
+		_spec.ClearField(task.FieldStartingAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Deadline(); ok {
+		_spec.SetField(task.FieldDeadline, field.TypeTime, value)
+	}
+	if _u.mutation.DeadlineCleared() {
+		_spec.ClearField(task.FieldDeadline, field.TypeTime)
 	}
 	if _u.mutation.ProjectCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -205,6 +388,20 @@ func (_u *TaskUpdateOne) SetNillableTitle(v *string) *TaskUpdateOne {
 	return _u
 }
 
+// SetDescription sets the "description" field.
+func (_u *TaskUpdateOne) SetDescription(v string) *TaskUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableDescription(v *string) *TaskUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *TaskUpdateOne) SetStatus(v task.Status) *TaskUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -216,6 +413,126 @@ func (_u *TaskUpdateOne) SetNillableStatus(v *task.Status) *TaskUpdateOne {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
+	return _u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_u *TaskUpdateOne) SetCreatedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetCreatedAt(v)
+	return _u
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableCreatedAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetCreatedAt(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *TaskUpdateOne) SetUpdatedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (_u *TaskUpdateOne) SetFinishedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetFinishedAt(v)
+	return _u
+}
+
+// SetNillableFinishedAt sets the "finished_at" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableFinishedAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetFinishedAt(*v)
+	}
+	return _u
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (_u *TaskUpdateOne) ClearFinishedAt() *TaskUpdateOne {
+	_u.mutation.ClearFinishedAt()
+	return _u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (_u *TaskUpdateOne) SetStartedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableStartedAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (_u *TaskUpdateOne) ClearStartedAt() *TaskUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
+}
+
+// SetArchivedAt sets the "archived_at" field.
+func (_u *TaskUpdateOne) SetArchivedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetArchivedAt(v)
+	return _u
+}
+
+// SetNillableArchivedAt sets the "archived_at" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableArchivedAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetArchivedAt(*v)
+	}
+	return _u
+}
+
+// ClearArchivedAt clears the value of the "archived_at" field.
+func (_u *TaskUpdateOne) ClearArchivedAt() *TaskUpdateOne {
+	_u.mutation.ClearArchivedAt()
+	return _u
+}
+
+// SetStartingAt sets the "starting_at" field.
+func (_u *TaskUpdateOne) SetStartingAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetStartingAt(v)
+	return _u
+}
+
+// SetNillableStartingAt sets the "starting_at" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableStartingAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetStartingAt(*v)
+	}
+	return _u
+}
+
+// ClearStartingAt clears the value of the "starting_at" field.
+func (_u *TaskUpdateOne) ClearStartingAt() *TaskUpdateOne {
+	_u.mutation.ClearStartingAt()
+	return _u
+}
+
+// SetDeadline sets the "deadline" field.
+func (_u *TaskUpdateOne) SetDeadline(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetDeadline(v)
+	return _u
+}
+
+// SetNillableDeadline sets the "deadline" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableDeadline(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetDeadline(*v)
+	}
+	return _u
+}
+
+// ClearDeadline clears the value of the "deadline" field.
+func (_u *TaskUpdateOne) ClearDeadline() *TaskUpdateOne {
+	_u.mutation.ClearDeadline()
 	return _u
 }
 
@@ -256,6 +573,7 @@ func (_u *TaskUpdateOne) Select(field string, fields ...string) *TaskUpdateOne {
 
 // Save executes the query and returns the updated Task entity.
 func (_u *TaskUpdateOne) Save(ctx context.Context) (*Task, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -281,6 +599,14 @@ func (_u *TaskUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *TaskUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := task.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *TaskUpdateOne) check() error {
 	if v, ok := _u.mutation.Title(); ok {
@@ -303,7 +629,7 @@ func (_u *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Task.id" for update`)}
@@ -331,8 +657,47 @@ func (_u *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) {
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(task.FieldTitle, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(task.FieldDescription, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(task.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.CreatedAt(); ok {
+		_spec.SetField(task.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(task.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.FinishedAt(); ok {
+		_spec.SetField(task.FieldFinishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.FinishedAtCleared() {
+		_spec.ClearField(task.FieldFinishedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartedAt(); ok {
+		_spec.SetField(task.FieldStartedAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartedAtCleared() {
+		_spec.ClearField(task.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ArchivedAt(); ok {
+		_spec.SetField(task.FieldArchivedAt, field.TypeTime, value)
+	}
+	if _u.mutation.ArchivedAtCleared() {
+		_spec.ClearField(task.FieldArchivedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.StartingAt(); ok {
+		_spec.SetField(task.FieldStartingAt, field.TypeTime, value)
+	}
+	if _u.mutation.StartingAtCleared() {
+		_spec.ClearField(task.FieldStartingAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Deadline(); ok {
+		_spec.SetField(task.FieldDeadline, field.TypeTime, value)
+	}
+	if _u.mutation.DeadlineCleared() {
+		_spec.ClearField(task.FieldDeadline, field.TypeTime)
 	}
 	if _u.mutation.ProjectCleared() {
 		edge := &sqlgraph.EdgeSpec{
