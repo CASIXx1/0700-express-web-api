@@ -192,9 +192,17 @@ func (_u *TaskUpdate) ClearDeadline() *TaskUpdate {
 	return _u
 }
 
-// SetProjectID sets the "project" edge to the Project entity by ID.
-func (_u *TaskUpdate) SetProjectID(id uuid.UUID) *TaskUpdate {
-	_u.mutation.SetProjectID(id)
+// SetProjectID sets the "project_id" field.
+func (_u *TaskUpdate) SetProjectID(v uuid.UUID) *TaskUpdate {
+	_u.mutation.SetProjectID(v)
+	return _u
+}
+
+// SetNillableProjectID sets the "project_id" field if the given value is not nil.
+func (_u *TaskUpdate) SetNillableProjectID(v *uuid.UUID) *TaskUpdate {
+	if v != nil {
+		_u.SetProjectID(*v)
+	}
 	return _u
 }
 
@@ -536,9 +544,17 @@ func (_u *TaskUpdateOne) ClearDeadline() *TaskUpdateOne {
 	return _u
 }
 
-// SetProjectID sets the "project" edge to the Project entity by ID.
-func (_u *TaskUpdateOne) SetProjectID(id uuid.UUID) *TaskUpdateOne {
-	_u.mutation.SetProjectID(id)
+// SetProjectID sets the "project_id" field.
+func (_u *TaskUpdateOne) SetProjectID(v uuid.UUID) *TaskUpdateOne {
+	_u.mutation.SetProjectID(v)
+	return _u
+}
+
+// SetNillableProjectID sets the "project_id" field if the given value is not nil.
+func (_u *TaskUpdateOne) SetNillableProjectID(v *uuid.UUID) *TaskUpdateOne {
+	if v != nil {
+		_u.SetProjectID(*v)
+	}
 	return _u
 }
 

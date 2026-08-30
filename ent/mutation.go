@@ -1876,27 +1876,51 @@ func (m *TaskMutation) ResetDeadline() {
 	delete(m.clearedFields, task.FieldDeadline)
 }
 
-// SetProjectID sets the "project" edge to the Project entity by id.
-func (m *TaskMutation) SetProjectID(id uuid.UUID) {
-	m.project = &id
+// SetProjectID sets the "project_id" field.
+func (m *TaskMutation) SetProjectID(u uuid.UUID) {
+	m.project = &u
+}
+
+// ProjectID returns the value of the "project_id" field in the mutation.
+func (m *TaskMutation) ProjectID() (r uuid.UUID, exists bool) {
+	v := m.project
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProjectID returns the old "project_id" field's value of the Task entity.
+// If the Task object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TaskMutation) OldProjectID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProjectID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProjectID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProjectID: %w", err)
+	}
+	return oldValue.ProjectID, nil
+}
+
+// ResetProjectID resets all changes to the "project_id" field.
+func (m *TaskMutation) ResetProjectID() {
+	m.project = nil
 }
 
 // ClearProject clears the "project" edge to the Project entity.
 func (m *TaskMutation) ClearProject() {
 	m.clearedproject = true
+	m.clearedFields[task.FieldProjectID] = struct{}{}
 }
 
 // ProjectCleared reports if the "project" edge to the Project entity was cleared.
 func (m *TaskMutation) ProjectCleared() bool {
 	return m.clearedproject
-}
-
-// ProjectID returns the "project" edge ID in the mutation.
-func (m *TaskMutation) ProjectID() (id uuid.UUID, exists bool) {
-	if m.project != nil {
-		return *m.project, true
-	}
-	return
 }
 
 // ProjectIDs returns the "project" edge IDs in the mutation.
@@ -1949,7 +1973,7 @@ func (m *TaskMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TaskMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.title != nil {
 		fields = append(fields, task.FieldTitle)
 	}
@@ -1980,6 +2004,9 @@ func (m *TaskMutation) Fields() []string {
 	if m.deadline != nil {
 		fields = append(fields, task.FieldDeadline)
 	}
+	if m.project != nil {
+		fields = append(fields, task.FieldProjectID)
+	}
 	return fields
 }
 
@@ -2008,6 +2035,8 @@ func (m *TaskMutation) Field(name string) (ent.Value, bool) {
 		return m.StartingAt()
 	case task.FieldDeadline:
 		return m.Deadline()
+	case task.FieldProjectID:
+		return m.ProjectID()
 	}
 	return nil, false
 }
@@ -2037,6 +2066,8 @@ func (m *TaskMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldStartingAt(ctx)
 	case task.FieldDeadline:
 		return m.OldDeadline(ctx)
+	case task.FieldProjectID:
+		return m.OldProjectID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Task field %s", name)
 }
@@ -2115,6 +2146,13 @@ func (m *TaskMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeadline(v)
+		return nil
+	case task.FieldProjectID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProjectID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)
@@ -2227,6 +2265,9 @@ func (m *TaskMutation) ResetField(name string) error {
 		return nil
 	case task.FieldDeadline:
 		m.ResetDeadline()
+		return nil
+	case task.FieldProjectID:
+		m.ResetProjectID()
 		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)

@@ -39,11 +39,12 @@ type Task struct {
 	StartingAt *time.Time `json:"starting_at,omitempty"`
 	// Deadline holds the value of the "deadline" field.
 	Deadline *time.Time `json:"deadline,omitempty"`
+	// ProjectID holds the value of the "project_id" field.
+	ProjectID uuid.UUID `json:"project_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TaskQuery when eager-loading is set.
-	Edges         TaskEdges `json:"edges"`
-	project_tasks *uuid.UUID
-	selectValues  sql.SelectValues
+	Edges        TaskEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // TaskEdges holds the relations/edges for other nodes in the graph.
@@ -75,10 +76,8 @@ func (*Task) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case task.FieldCreatedAt, task.FieldUpdatedAt, task.FieldFinishedAt, task.FieldStartedAt, task.FieldArchivedAt, task.FieldStartingAt, task.FieldDeadline:
 			values[i] = new(sql.NullTime)
-		case task.FieldID:
+		case task.FieldID, task.FieldProjectID:
 			values[i] = new(uuid.UUID)
-		case task.ForeignKeys[0]: // project_tasks
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -165,12 +164,11 @@ func (_m *Task) assignValues(columns []string, values []any) error {
 				_m.Deadline = new(time.Time)
 				*_m.Deadline = value.Time
 			}
-		case task.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field project_tasks", values[i])
-			} else if value.Valid {
-				_m.project_tasks = new(uuid.UUID)
-				*_m.project_tasks = *value.S.(*uuid.UUID)
+		case task.FieldProjectID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field project_id", values[i])
+			} else if value != nil {
+				_m.ProjectID = *value
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -252,6 +250,9 @@ func (_m *Task) String() string {
 		builder.WriteString("deadline=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("project_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ProjectID))
 	builder.WriteByte(')')
 	return builder.String()
 }

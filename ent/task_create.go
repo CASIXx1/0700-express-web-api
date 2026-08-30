@@ -154,6 +154,12 @@ func (_c *TaskCreate) SetNillableDeadline(v *time.Time) *TaskCreate {
 	return _c
 }
 
+// SetProjectID sets the "project_id" field.
+func (_c *TaskCreate) SetProjectID(v uuid.UUID) *TaskCreate {
+	_c.mutation.SetProjectID(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *TaskCreate) SetID(v uuid.UUID) *TaskCreate {
 	_c.mutation.SetID(v)
@@ -165,12 +171,6 @@ func (_c *TaskCreate) SetNillableID(v *uuid.UUID) *TaskCreate {
 	if v != nil {
 		_c.SetID(*v)
 	}
-	return _c
-}
-
-// SetProjectID sets the "project" edge to the Project entity by ID.
-func (_c *TaskCreate) SetProjectID(id uuid.UUID) *TaskCreate {
-	_c.mutation.SetProjectID(id)
 	return _c
 }
 
@@ -262,6 +262,9 @@ func (_c *TaskCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Task.updated_at"`)}
+	}
+	if _, ok := _c.mutation.ProjectID(); !ok {
+		return &ValidationError{Name: "project_id", err: errors.New(`ent: missing required field "Task.project_id"`)}
 	}
 	if len(_c.mutation.ProjectIDs()) == 0 {
 		return &ValidationError{Name: "project", err: errors.New(`ent: missing required edge "Task.project"`)}
@@ -355,7 +358,7 @@ func (_c *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.project_tasks = &nodes[0]
+		_node.ProjectID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

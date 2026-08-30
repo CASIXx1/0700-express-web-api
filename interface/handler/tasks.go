@@ -5,50 +5,31 @@ import (
 	"0700-express-web-api/usecase"
 	"log"
 	"net/http"
-	"time"
 )
 
 type TaskHandler struct {
-	projectUsecase *usecase.ProjectUsecase
+	taskUsecase *usecase.TaskUsecase
 }
 
 type taskResponse struct {
-	ID         string               `json:"id"`
-	Name       string               `json:"name"`
-	Slug       string               `json:"slug"`
-	Goal       *string              `json:"goal"`
-	Shouldbe   *string              `json:"shouldbe"`
-	Color      *string              `json:"color"`
-	Stats      projectStatsResponse `json:"stats"`
-	CreatedAt  string               `json:"createdAt"`
-	UpdatedAt  string               `json:"updatedAt"`
-	Deadline   *string              `json:"deadline"`
-	StartingAt *string              `json:"startingAt"`
-	StartedAt  *string              `json:"startedAt"`
-	FinishedAt *string              `json:"finishedAt"`
+	ID          string   `json:"id"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Status      string   `json:"status"`
+	CreatedAt   string   `json:"createdAt"`
+	UpdatedAt   string   `json:"updatedAt"`
+	FinishedAt  *string  `json:"finishedAt"`
+	StartedAt   *string  `json:"startedAt"`
+	ArchivedAt  *string  `json:"archivedAt"`
+	StartingAt  *string  `json:"startingAt"`
+	Deadline    *string  `json:"deadline"`
+	Parent      *string  `json:"parent"`
+	Children    []string `json:"children"`
 }
 
-type projectStatsResponse struct {
-	Total  int                        `json:"total"`
-	Kinds  projectStatsKindsResponse  `json:"kinds"`
-	States projectStatsStatesResponse `json:"states"`
-}
-
-type projectStatsKindsResponse struct {
-	Milestone int `json:"milestone"`
-	Task      int `json:"task"`
-	Total     int `json:"total"`
-}
-
-type projectStatsStatesResponse struct {
-	Scheduled int `json:"scheduled"`
-	Completed int `json:"completed"`
-	Archived  int `json:"archived"`
-}
-
-func NewTaskHandler(projectUsecase *usecase.ProjectUsecase) *TaskHandler {
+func NewTaskHandler(taskUsecase *usecase.TaskUsecase) *TaskHandler {
 	return &TaskHandler{
-		projectUsecase: projectUsecase,
+		taskUsecase: taskUsecase,
 	}
 }
 
@@ -69,9 +50,10 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 		return
 	}
 
-	result, err := handler.projectUsecase.FindProjects(request.Context(), userID, paginationRequest.Page, paginationRequest.Limit)
+	status := request.URL.Query().Get("status")
+	result, err := handler.taskUsecase.FindTasks(request.Context(), userID, status, paginationRequest.Page, paginationRequest.Limit)
 	if err != nil {
-		log.Printf("failed to find projects: %v", err)
+		log.Printf("failed to find tasks: %v", err)
 
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
@@ -79,8 +61,8 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 		return
 	}
 
-	WriteResponse(writer, http.StatusOK, paginatedResponse[[]projectResponse]{
-		Data: projectResponses(result.Projects),
+	WriteResponse(writer, http.StatusOK, paginatedResponse[[]taskResponse]{
+		Data: taskResponses(result.Tasks),
 		PageInfo: paginationResponse{
 			Page:        paginationRequest.Page,
 			Limit:       paginationRequest.Limit,
@@ -91,59 +73,30 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 	})
 }
 
-func taskResponses(projects []*ent.Project) []projectResponse {
-	responses := []projectResponse{}
+func taskResponses(tasks []*ent.Task) []taskResponse {
+	responses := []taskResponse{}
 
-	for _, project := range projects {
-		responses = append(responses, projectResponseFromProject(project))
+	for _, task := range tasks {
+		responses = append(responses, taskResponseFromTask(task))
 	}
 
 	return responses
 }
 
-func projectResponseFromProject(project *ent.Project) projectResponse {
-	return projectResponse{
-		ID:         project.ID.String(),
-		Name:       project.Name,
-		Slug:       project.Slug,
-		Goal:       project.Goal,
-		Shouldbe:   project.Shouldbe,
-		Color:      project.Color,
-		Stats:      defaultProjectStatsResponse(),
-		CreatedAt:  formatDateTime(project.CreatedAt),
-		UpdatedAt:  formatDateTime(project.UpdatedAt),
-		Deadline:   formatOptionalDateTime(project.Deadline),
-		StartingAt: formatOptionalDateTime(project.StartingAt),
-		StartedAt:  formatOptionalDateTime(project.StartedAt),
-		FinishedAt: formatOptionalDateTime(project.FinishedAt),
-	}
-}
-
-func formatDateTime(value time.Time) string {
-	return value.UTC().Format("2006-01-02T15:04:05.000Z")
-}
-
-func formatOptionalDateTime(value *time.Time) *string {
-	if value == nil {
-		return nil
-	}
-
-	formatted := formatDateTime(*value)
-	return &formatted
-}
-
-func defaultProjectStatsResponse() projectStatsResponse {
-	return projectStatsResponse{
-		Total: 100,
-		Kinds: projectStatsKindsResponse{
-			Milestone: 20,
-			Task:      30,
-			Total:     50,
-		},
-		States: projectStatsStatesResponse{
-			Scheduled: 20,
-			Completed: 30,
-			Archived:  50,
-		},
+func taskResponseFromTask(task *ent.Task) taskResponse {
+	return taskResponse{
+		ID:          task.ID.String(),
+		Title:       task.Title,
+		Description: task.Description,
+		Status:      task.Status.String(),
+		CreatedAt:   formatDateTime(task.CreatedAt),
+		UpdatedAt:   formatDateTime(task.UpdatedAt),
+		FinishedAt:  formatOptionalDateTime(task.FinishedAt),
+		StartedAt:   formatOptionalDateTime(task.StartedAt),
+		ArchivedAt:  formatOptionalDateTime(task.ArchivedAt),
+		StartingAt:  formatOptionalDateTime(task.StartingAt),
+		Deadline:    formatOptionalDateTime(task.Deadline),
+		Parent:      nil,
+		Children:    []string{},
 	}
 }

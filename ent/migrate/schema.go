@@ -52,7 +52,7 @@ var (
 		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
 		{Name: "starting_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deadline", Type: field.TypeTime, Nullable: true},
-		{Name: "project_tasks", Type: field.TypeUUID},
+		{Name: "project_id", Type: field.TypeUUID},
 	}
 	// TasksTable holds the schema information for the "tasks" table.
 	TasksTable = &schema.Table{

@@ -47,6 +47,7 @@ func (Task) Fields() []ent.Field {
 		field.Time("deadline").
 			Optional().
 			Nillable(),
+		field.UUID("project_id", uuid.UUID{}),
 	}
 }
 
@@ -55,6 +56,7 @@ func (Task) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("project", Project.Type).
 			Ref("tasks").
+			Field("project_id").
 			Unique().
 			Required(),
 	}

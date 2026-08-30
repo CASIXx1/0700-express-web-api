@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"0700-express-web-api/ent"
+	entProject "0700-express-web-api/ent/project"
 	"0700-express-web-api/interface/repository"
 )
 
@@ -16,6 +17,18 @@ func newTaskSeeder() seeder {
 
 func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	taskRepository := repository.NewTaskRepository(client)
+	programmingProject, err := client.Project.Query().Where(entProject.SlugEQ("programming")).Only(ctx)
+	if err != nil {
+		return err
+	}
+	englishProject, err := client.Project.Query().Where(entProject.SlugEQ("english")).Only(ctx)
+	if err != nil {
+		return err
+	}
+	designProject, err := client.Project.Query().Where(entProject.SlugEQ("design")).Only(ctx)
+	if err != nil {
+		return err
+	}
 
 	jst := time.FixedZone("JST", 9*60*60)
 	startingAt := time.Date(2026, 8, 1, 0, 0, 0, 0, jst)
@@ -26,7 +39,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 		Title:       "Learn Golang",
 		Description: "variables, types, functions",
 		Status:      "scheduled",
-		ProjectSlug: "programming",
+		ProjectID:   programmingProject.ID,
 		StartingAt:  &startingAt,
 		StartedAt:   &startedAt,
 		FinishedAt:  nil,
@@ -39,7 +52,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 		Title:       "Learn English",
 		Description: "grammar, pronounce, idiom, conversation",
 		Status:      "scheduled",
-		ProjectSlug: "english",
+		ProjectID:   englishProject.ID,
 		StartingAt:  &startingAt,
 		StartedAt:   &startedAt,
 		FinishedAt:  nil,
@@ -52,7 +65,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 		Title:       "Learn Design",
 		Description: "UI, UX",
 		Status:      "scheduled",
-		ProjectSlug: "design",
+		ProjectID:   designProject.ID,
 		StartingAt:  &startingAt,
 		StartedAt:   &startedAt,
 		FinishedAt:  nil,

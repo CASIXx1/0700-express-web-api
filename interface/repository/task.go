@@ -14,7 +14,7 @@ type CreateTaskInput struct {
 	Title       string
 	Description string
 	Status      string
-	ProjectSlug string
+	ProjectID   uuid.UUID
 	FinishedAt  *time.Time
 	StartedAt   *time.Time
 	ArchivedAt  *time.Time
@@ -43,14 +43,11 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, input CreateTa
 		SetNillableArchivedAt(input.ArchivedAt).
 		SetNillableStartingAt(input.StartingAt).
 		SetNillableDeadline(input.Deadline).
-		SetProject(repository.client.Project.
-			Query().
-			Where(entProject.SlugEQ(input.ProjectSlug)).
-			OnlyX(ctx)).
+		SetProjectID(input.ProjectID).
 		Exec(ctx)
 }
 
-func (repository *ProjectRepository) FindTasks(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error) {
+func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, status string, limit int, offset int) ([]*ent.Task, error) {
 	id, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err

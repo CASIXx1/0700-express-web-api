@@ -36,6 +36,8 @@ const (
 	FieldStartingAt = "starting_at"
 	// FieldDeadline holds the string denoting the deadline field in the database.
 	FieldDeadline = "deadline"
+	// FieldProjectID holds the string denoting the project_id field in the database.
+	FieldProjectID = "project_id"
 	// EdgeProject holds the string denoting the project edge name in mutations.
 	EdgeProject = "project"
 	// Table holds the table name of the task in the database.
@@ -46,7 +48,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "project" package.
 	ProjectInverseTable = "projects"
 	// ProjectColumn is the table column denoting the project relation/edge.
-	ProjectColumn = "project_tasks"
+	ProjectColumn = "project_id"
 )
 
 // Columns holds all SQL columns for task fields.
@@ -62,23 +64,13 @@ var Columns = []string{
 	FieldArchivedAt,
 	FieldStartingAt,
 	FieldDeadline,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "tasks"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"project_tasks",
+	FieldProjectID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -183,6 +175,11 @@ func ByStartingAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeadline orders the results by the deadline field.
 func ByDeadline(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeadline, opts...).ToFunc()
+}
+
+// ByProjectID orders the results by the project_id field.
+func ByProjectID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProjectID, opts...).ToFunc()
 }
 
 // ByProjectField orders the results by project field.
