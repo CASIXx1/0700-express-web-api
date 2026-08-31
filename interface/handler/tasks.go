@@ -50,8 +50,8 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 		return
 	}
 
-	status := request.URL.Query().Get("status")
-	result, err := handler.taskUsecase.FindTasks(request.Context(), userID, status, paginationRequest.Page, paginationRequest.Limit)
+	statuses := request.URL.Query()["status"]
+	result, err := handler.taskUsecase.FindTasks(request.Context(), userID, statuses, paginationRequest.Page, paginationRequest.Limit)
 	if err != nil {
 		log.Printf("failed to find tasks: %v", err)
 

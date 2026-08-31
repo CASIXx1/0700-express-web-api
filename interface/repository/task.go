@@ -47,17 +47,48 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, input CreateTa
 		Exec(ctx)
 }
 
-func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, status string, limit int, offset int) ([]*ent.Task, error) {
+func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, statuses []string, limit int, offset int) ([]*ent.Task, error) {
 	id, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return repository.client.Task.
+	query := repository.client.Task.
 		Query().
 		Limit(limit).
 		Offset(offset).
-		Where(entTask.UserID(id)).
-		Order(entTask.BySortOrder()).
-		All(ctx)
+		Where(entTask.HasProjectWith(entProject.UserID(id))).
+		Order(entTask.ByID())
+
+	if len(statuses) > 0 {
+		query.Where(entTask.StatusIn(taskStatuses(statuses)...))
+	}
+
+	return query.All(ctx)
+}
+
+func (repository *TaskRepository) CountTasks(ctx context.Context, userID string, statuses []string) (int, error) {
+	id, err := uuid.Parse(userID)
+	if err != nil {
+		return 0, err
+	}
+
+	query := repository.client.Task.
+		Query().
+		Where(entTask.HasProjectWith(entProject.UserID(id)))
+
+	if len(statuses) > 0 {
+		query.Where(entTask.StatusIn(taskStatuses(statuses)...))
+	}
+
+	return query.Count(ctx)
+}
+
+func taskStatuses(statuses []string) []entTask.Status {
+	values := []entTask.Status{}
+	for _, status := range statuses {
+		values = append(values, entTask.Status(status))
+	}
+
+	return values
 }
