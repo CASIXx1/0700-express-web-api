@@ -2,9 +2,13 @@ package handler
 
 import (
 	"0700-express-web-api/ent"
+	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/usecase"
+	"errors"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type TaskHandler struct {
@@ -70,6 +74,45 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 			HasPrevious: result.PageInfo.HasPrevious,
 			HasNext:     result.PageInfo.HasNext,
 		},
+	})
+}
+
+func (handler *TaskHandler) DeleteTask(writer http.ResponseWriter, request *http.Request) {
+	userID, ok := userIDFromContext(request.Context())
+	if !ok || userID == "" {
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
+			Message: "unauthorized",
+		})
+		return
+	}
+
+	taskID := mux.Vars(request)["id"]
+	if taskID == "" {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: "missing task id",
+		})
+		return
+	}
+
+	task, err := handler.taskUsecase.DeleteTask(request.Context(), userID, taskID)
+	if err != nil {
+		log.Printf("failed to delete task: %v", err)
+
+		if errors.Is(err, repository.ErrNotFound) {
+			WriteResponse(writer, http.StatusNotFound, ErrorResponse{
+				Message: "task not found",
+			})
+			return
+		}
+
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	WriteResponse(writer, http.StatusOK, normalResponse[taskResponse]{
+		Data: taskResponseFromTask(task),
 	})
 }
 
