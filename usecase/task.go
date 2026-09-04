@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"0700-express-web-api/ent"
+	"0700-express-web-api/interface/repository"
 	"context"
 )
 
@@ -15,6 +16,7 @@ type TaskListResult struct {
 }
 
 type TaskRepository interface {
+	CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) error
 	FindTasks(ctx context.Context, userID string, statuses []string, limit int, offset int) ([]*ent.Task, error)
 	CountTasks(ctx context.Context, userID string, statuses []string) (int, error)
 	FindTaskByID(ctx context.Context, userID string, taskID string) (*ent.Task, error)
@@ -25,6 +27,10 @@ func NewTaskUsecase(taskRepository TaskRepository) *TaskUsecase {
 	return &TaskUsecase{
 		taskRepository: taskRepository,
 	}
+}
+
+func (usecase *TaskUsecase) CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) error {
+	return usecase.taskRepository.CreateTask(ctx, userID, input)
 }
 
 func (usecase *TaskUsecase) FindTasks(ctx context.Context, userID string, statuses []string, page int, limit int) (*TaskListResult, error) {

@@ -17,6 +17,12 @@ func newTaskSeeder() seeder {
 
 func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	taskRepository := repository.NewTaskRepository(client)
+	userRepository := repository.NewUserRepository(client)
+	user, err := userRepository.FindUserByEmail(ctx, "test@example.com")
+	if err != nil {
+		return err
+	}
+
 	programmingProject, err := client.Project.Query().Where(entProject.SlugEQ("programming")).Only(ctx)
 	if err != nil {
 		return err
@@ -35,7 +41,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	startedAt := time.Date(2026, 8, 5, 0, 0, 0, 0, jst)
 	deadline := time.Date(2026, 9, 30, 0, 0, 0, 0, jst)
 
-	if err := taskRepository.CreateTask(ctx, repository.CreateTaskInput{
+	if err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
 		Title:       "Learn Golang",
 		Description: "variables, types, functions",
 		Status:      "scheduled",
@@ -48,7 +54,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	}); err != nil {
 		return err
 	}
-	if err := taskRepository.CreateTask(ctx, repository.CreateTaskInput{
+	if err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
 		Title:       "Learn English",
 		Description: "grammar, pronounce, idiom, conversation",
 		Status:      "scheduled",
@@ -61,7 +67,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	}); err != nil {
 		return err
 	}
-	if err := taskRepository.CreateTask(ctx, repository.CreateTaskInput{
+	if err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
 		Title:       "Learn Design",
 		Description: "UI, UX",
 		Status:      "scheduled",

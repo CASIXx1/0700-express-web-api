@@ -32,7 +32,25 @@ func NewTaskRepository(client *ent.Client) *TaskRepository {
 	}
 }
 
-func (repository *TaskRepository) CreateTask(ctx context.Context, input CreateTaskInput) error {
+func (repository *TaskRepository) CreateTask(ctx context.Context, userID string, input CreateTaskInput) error {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return err
+	}
+
+	project, err := repository.client.Project.
+		Query().
+		Where(entProject.ID(input.ProjectID)).
+		Where(entProject.UserID(userUUID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return ErrNotFound
+		}
+
+		return err
+	}
+
 	return repository.client.Task.
 		Create().
 		SetTitle(input.Title).
@@ -43,7 +61,7 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, input CreateTa
 		SetNillableArchivedAt(input.ArchivedAt).
 		SetNillableStartingAt(input.StartingAt).
 		SetNillableDeadline(input.Deadline).
-		SetProjectID(input.ProjectID).
+		SetProjectID(project.ID).
 		Exec(ctx)
 }
 
