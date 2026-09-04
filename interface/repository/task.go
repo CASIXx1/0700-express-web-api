@@ -58,6 +58,7 @@ func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, 
 		Limit(limit).
 		Offset(offset).
 		Where(entTask.HasProjectWith(entProject.UserID(id))).
+		WithProject().
 		Order(entTask.ByID())
 
 	if len(statuses) > 0 {
