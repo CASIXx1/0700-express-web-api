@@ -84,6 +84,34 @@ func (repository *TaskRepository) CountTasks(ctx context.Context, userID string,
 	return query.Count(ctx)
 }
 
+func (repository *TaskRepository) FindTaskByID(ctx context.Context, userID string, taskID string) (*ent.Task, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskUUID, err := uuid.Parse(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	task, err := repository.client.Task.
+		Query().
+		Where(entTask.ID(taskUUID)).
+		Where(entTask.HasProjectWith(entProject.UserID(userUUID))).
+		WithProject().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return task, nil
+}
+
 func (repository *TaskRepository) DeleteTask(ctx context.Context, userID string, taskID string) (*ent.Task, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
