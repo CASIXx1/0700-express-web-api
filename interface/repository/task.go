@@ -22,6 +22,18 @@ type CreateTaskInput struct {
 	Deadline    *time.Time
 }
 
+type UpdateTaskInput struct {
+	Title       *string
+	Description *string
+	Status      *entTask.Status
+	ProjectID   *uuid.UUID
+	FinishedAt  *time.Time
+	StartedAt   *time.Time
+	ArchivedAt  *time.Time
+	StartingAt  *time.Time
+	Deadline    *time.Time
+}
+
 type TaskRepository struct {
 	client *ent.Client
 }
@@ -127,6 +139,84 @@ func (repository *TaskRepository) FindTaskByID(ctx context.Context, userID strin
 
 		return nil, err
 	}
+
+	return task, nil
+}
+
+func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string, taskID string, input UpdateTaskInput) (*ent.Task, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskUUID, err := uuid.Parse(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	currentTask, err := repository.FindTaskByID(ctx, userID, taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	project := currentTask.Edges.Project
+	if input.ProjectID != nil {
+		project, err = repository.client.Project.
+			Query().
+			Where(entProject.ID(*input.ProjectID)).
+			Where(entProject.UserID(userUUID)).
+			Only(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, ErrNotFound
+			}
+
+			return nil, err
+		}
+	}
+
+	update := repository.client.Task.
+		UpdateOneID(taskUUID).
+		Where(entTask.HasProjectWith(entProject.UserID(userUUID)))
+
+	if input.Title != nil {
+		update.SetTitle(*input.Title)
+	}
+	if input.Description != nil {
+		update.SetDescription(*input.Description)
+	}
+	if input.Status != nil {
+		update.SetStatus(*input.Status)
+	}
+	if input.FinishedAt != nil {
+		update.SetFinishedAt(*input.FinishedAt)
+	}
+	if input.StartedAt != nil {
+		update.SetStartedAt(*input.StartedAt)
+	}
+	if input.ArchivedAt != nil {
+		update.SetArchivedAt(*input.ArchivedAt)
+	}
+	if input.StartingAt != nil {
+		update.SetStartingAt(*input.StartingAt)
+	}
+	if input.Deadline != nil {
+		update.SetDeadline(*input.Deadline)
+	}
+	if input.ProjectID != nil {
+		update.SetProjectID(project.ID)
+	}
+
+	task, err := update.Save(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	task.Edges.Project = project
 
 	return task, nil
 }

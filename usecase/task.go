@@ -20,6 +20,7 @@ type TaskRepository interface {
 	FindTasks(ctx context.Context, userID string, statuses []string, limit int, offset int) ([]*ent.Task, error)
 	CountTasks(ctx context.Context, userID string, statuses []string) (int, error)
 	FindTaskByID(ctx context.Context, userID string, taskID string) (*ent.Task, error)
+	UpdateTask(ctx context.Context, userID string, taskID string, input repository.UpdateTaskInput) (*ent.Task, error)
 	DeleteTask(ctx context.Context, userID string, taskID string) (*ent.Task, error)
 }
 
@@ -58,6 +59,10 @@ func (usecase *TaskUsecase) FindTasks(ctx context.Context, userID string, status
 
 func (usecase *TaskUsecase) FindTaskByID(ctx context.Context, userID string, taskID string) (*ent.Task, error) {
 	return usecase.taskRepository.FindTaskByID(ctx, userID, taskID)
+}
+
+func (usecase *TaskUsecase) UpdateTask(ctx context.Context, userID string, taskID string, input repository.UpdateTaskInput) (*ent.Task, error) {
+	return usecase.taskRepository.UpdateTask(ctx, userID, taskID, input)
 }
 
 func (usecase *TaskUsecase) DeleteTask(ctx context.Context, userID string, taskID string) (*ent.Task, error) {

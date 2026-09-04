@@ -67,6 +67,7 @@ func main() {
 	authRequired.HandleFunc("/users/tasks", taskHandler.FindTasks).Methods(http.MethodGet)
 	authRequired.HandleFunc("/users/tasks", taskHandler.CreateTask).Methods(http.MethodPost)
 	authRequired.HandleFunc("/users/tasks/{id}", taskHandler.FindTaskByID).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/tasks/{id}", taskHandler.UpdateTask).Methods(http.MethodPatch)
 	authRequired.HandleFunc("/users/tasks/{id}", taskHandler.DeleteTask).Methods(http.MethodDelete)
 
 	addr := ":8080"
