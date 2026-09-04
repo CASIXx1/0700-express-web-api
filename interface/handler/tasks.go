@@ -46,6 +46,16 @@ type createTaskRequest struct {
 	Deadline    string `json:"deadline"`
 }
 
+type updateTaskRequest struct {
+	Title       *string `json:"title"`
+	Kind        *string `json:"kind"`
+	Description *string `json:"description"`
+	Status      *string `json:"status"`
+	ProjectID   *string `json:"projectId"`
+	StartingAt  *string `json:"startingAt"`
+	Deadline    *string `json:"deadline"`
+}
+
 func NewTaskHandler(taskUsecase *usecase.TaskUsecase) *TaskHandler {
 	return &TaskHandler{
 		taskUsecase: taskUsecase,
@@ -214,6 +224,62 @@ func (handler *TaskHandler) FindTaskByID(writer http.ResponseWriter, request *ht
 	})
 }
 
+func (handler *TaskHandler) UpdateTask(writer http.ResponseWriter, request *http.Request) {
+	userID, ok := userIDFromContext(request.Context())
+	if !ok || userID == "" {
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
+			Message: "unauthorized",
+		})
+		return
+	}
+
+	taskID := mux.Vars(request)["id"]
+	if taskID == "" {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: "missing task id",
+		})
+		return
+	}
+
+	var body updateTaskRequest
+	err := json.NewDecoder(request.Body).Decode(&body)
+	if err != nil {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	input, err := updateTaskInputFromRequest(body)
+	if err != nil {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	task, err := handler.taskUsecase.UpdateTask(request.Context(), userID, taskID, input)
+	if err != nil {
+		log.Printf("failed to update task: %v", err)
+
+		if errors.Is(err, repository.ErrNotFound) {
+			WriteResponse(writer, http.StatusNotFound, ErrorResponse{
+				Message: "task not found",
+			})
+			return
+		}
+
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	WriteResponse(writer, http.StatusOK, normalResponse[taskResponse]{
+		Data: taskResponseFromTask(task),
+	})
+}
+
 func taskResponses(tasks []*ent.Task) []taskResponse {
 	responses := []taskResponse{}
 
@@ -259,7 +325,8 @@ func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTas
 	}
 
 	status := entTask.Status(request.Status)
-	if err := entTask.StatusValidator(status); err != nil {
+	err := entTask.StatusValidator(status)
+	if err != nil {
 		return repository.CreateTaskInput{}, err
 	}
 
@@ -285,5 +352,16 @@ func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTas
 		ProjectID:   projectID,
 		StartingAt:  &startedAt,
 		Deadline:    &deadline,
+	}, nil
+}
+
+func updateTaskInputFromRequest(request updateTaskRequest) (repository.UpdateTaskInput, error) {
+	return repository.UpdateTaskInput{
+		Title:       request.Title,
+		Description: request.Description,
+		Status:      request.Status,
+		ProjectID:   request.ProjectID,
+		StartingAt:  request.StartingAt,
+		Deadline:    request.Deadline,
 	}, nil
 }
