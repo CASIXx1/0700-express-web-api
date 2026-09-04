@@ -13,7 +13,7 @@ import (
 type CreateTaskInput struct {
 	Title       string
 	Description string
-	Status      string
+	Status      entTask.Status
 	ProjectID   uuid.UUID
 	FinishedAt  *time.Time
 	StartedAt   *time.Time
@@ -55,7 +55,7 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, userID string,
 		Create().
 		SetTitle(input.Title).
 		SetDescription(input.Description).
-		SetStatus(entTask.Status(input.Status)).
+		SetStatus(input.Status).
 		SetNillableFinishedAt(input.FinishedAt).
 		SetNillableStartedAt(input.StartedAt).
 		SetNillableArchivedAt(input.ArchivedAt).

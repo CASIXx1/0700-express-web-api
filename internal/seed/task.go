@@ -6,6 +6,7 @@ import (
 
 	"0700-express-web-api/ent"
 	entProject "0700-express-web-api/ent/project"
+	entTask "0700-express-web-api/ent/task"
 	"0700-express-web-api/interface/repository"
 )
 
@@ -44,7 +45,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	if err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
 		Title:       "Learn Golang",
 		Description: "variables, types, functions",
-		Status:      "scheduled",
+		Status:      entTask.StatusScheduled,
 		ProjectID:   programmingProject.ID,
 		StartingAt:  &startingAt,
 		StartedAt:   &startedAt,
@@ -57,7 +58,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	if err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
 		Title:       "Learn English",
 		Description: "grammar, pronounce, idiom, conversation",
-		Status:      "scheduled",
+		Status:      entTask.StatusScheduled,
 		ProjectID:   englishProject.ID,
 		StartingAt:  &startingAt,
 		StartedAt:   &startedAt,
@@ -70,7 +71,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	if err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
 		Title:       "Learn Design",
 		Description: "UI, UX",
-		Status:      "scheduled",
+		Status:      entTask.StatusScheduled,
 		ProjectID:   designProject.ID,
 		StartingAt:  &startingAt,
 		StartedAt:   &startedAt,

@@ -2,12 +2,16 @@ package handler
 
 import (
 	"0700-express-web-api/ent"
+	entTask "0700-express-web-api/ent/task"
 	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/usecase"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -32,10 +36,64 @@ type taskResponse struct {
 	Children    []string         `json:"children"`
 }
 
+type createTaskRequest struct {
+	Title       string `json:"title"`
+	Kind        string `json:"kind"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	ProjectID   string `json:"projectId"`
+	StartingAt  string `json:"startingAt"`
+	Deadline    string `json:"deadline"`
+}
+
 func NewTaskHandler(taskUsecase *usecase.TaskUsecase) *TaskHandler {
 	return &TaskHandler{
 		taskUsecase: taskUsecase,
 	}
+}
+
+func (handler *TaskHandler) CreateTask(writer http.ResponseWriter, request *http.Request) {
+	userID, ok := userIDFromContext(request.Context())
+	if !ok || userID == "" {
+		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
+			Message: "unauthorized",
+		})
+		return
+	}
+
+	var body createTaskRequest
+	err := json.NewDecoder(request.Body).Decode(&body)
+	if err != nil {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	input, err := createTaskInputFromRequest(body)
+	if err != nil {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	err = handler.taskUsecase.CreateTask(request.Context(), userID, input)
+	if err != nil {
+		log.Printf("failed to create task: %v", err)
+
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, repository.ErrNotFound) {
+			statusCode = http.StatusBadRequest
+		}
+
+		WriteResponse(writer, statusCode, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	writer.WriteHeader(http.StatusCreated)
 }
 
 func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.Request) {
@@ -189,4 +247,43 @@ func taskResponseFromTask(task *ent.Task) taskResponse {
 		Parent:      nil,
 		Children:    []string{},
 	}
+}
+
+func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTaskInput, error) {
+	if request.Title == "" {
+		return repository.CreateTaskInput{}, errors.New("missing title")
+	}
+
+	if request.Kind != "task" {
+		return repository.CreateTaskInput{}, errors.New("invalid kind")
+	}
+
+	status := entTask.Status(request.Status)
+	if err := entTask.StatusValidator(status); err != nil {
+		return repository.CreateTaskInput{}, err
+	}
+
+	projectID, err := uuid.Parse(request.ProjectID)
+	if err != nil {
+		return repository.CreateTaskInput{}, err
+	}
+
+	startedAt, err := time.Parse("2026-01-01", request.StartingAt)
+	if err != nil {
+		return repository.CreateTaskInput{}, err
+	}
+
+	deadline, err := time.Parse("2026-01-01", request.Deadline)
+	if err != nil {
+		return repository.CreateTaskInput{}, err
+	}
+
+	return repository.CreateTaskInput{
+		Title:       request.Title,
+		Description: request.Description,
+		Status:      status,
+		ProjectID:   projectID,
+		StartingAt:  &startedAt,
+		Deadline:    &deadline,
+	}, nil
 }
