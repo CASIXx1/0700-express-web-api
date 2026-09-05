@@ -193,14 +193,14 @@ func (_c *ProjectCreate) SetUser(v *User) *ProjectCreate {
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
-func (_c *ProjectCreate) AddTaskIDs(ids ...int) *ProjectCreate {
+func (_c *ProjectCreate) AddTaskIDs(ids ...uuid.UUID) *ProjectCreate {
 	_c.mutation.AddTaskIDs(ids...)
 	return _c
 }
 
 // AddTasks adds the "tasks" edges to the Task entity.
 func (_c *ProjectCreate) AddTasks(v ...*Task) *ProjectCreate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -397,7 +397,7 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

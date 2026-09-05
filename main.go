@@ -45,13 +45,16 @@ func main() {
 
 	userRepository := repository.NewUserRepository(dbClient)
 	projectRepository := repository.NewProjectRepository(dbClient)
+	taskRepository := repository.NewTaskRepository(dbClient)
 	tokenService := auth.NewTokenService(jwtSecret)
 	authUsecase := usecase.NewAuthUsecase(userRepository, auth.NewPasswordVerifier(), tokenService)
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	projectUsecase := usecase.NewProjectUsecase(projectRepository)
+	taskUsecase := usecase.NewTaskUsecase(taskRepository)
 	authHandler := handler.NewHandler(authUsecase)
 	userHandler := handler.NewUserHandler(userUsecase)
 	projectHandler := handler.NewProjectHandler(projectUsecase)
+	taskHandler := handler.NewTaskHandler(taskUsecase)
 
 	r.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	r.HandleFunc("/auth/signup", authHandler.SignUp).Methods(http.MethodPost)
@@ -61,6 +64,11 @@ func main() {
 	authRequired.HandleFunc("/users/me", userHandler.Me).Methods(http.MethodGet)
 	authRequired.HandleFunc("/users/projects", projectHandler.FindProjects).Methods(http.MethodGet)
 	authRequired.HandleFunc("/users/projects/{slug}", projectHandler.FindProjectBySlug).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/tasks", taskHandler.FindTasks).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/tasks", taskHandler.CreateTask).Methods(http.MethodPost)
+	authRequired.HandleFunc("/users/tasks/{id}", taskHandler.FindTaskByID).Methods(http.MethodGet)
+	authRequired.HandleFunc("/users/tasks/{id}", taskHandler.UpdateTask).Methods(http.MethodPatch)
+	authRequired.HandleFunc("/users/tasks/{id}", taskHandler.DeleteTask).Methods(http.MethodDelete)
 
 	addr := ":8080"
 	log.Printf("server listening on %s\n", addr)

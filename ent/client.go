@@ -445,7 +445,7 @@ func (c *TaskClient) UpdateOne(_m *Task) *TaskUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TaskClient) UpdateOneID(id int) *TaskUpdateOne {
+func (c *TaskClient) UpdateOneID(id uuid.UUID) *TaskUpdateOne {
 	mutation := newTaskMutation(c.config, OpUpdateOne, withTaskID(id))
 	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -462,7 +462,7 @@ func (c *TaskClient) DeleteOne(_m *Task) *TaskDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TaskClient) DeleteOneID(id int) *TaskDeleteOne {
+func (c *TaskClient) DeleteOneID(id uuid.UUID) *TaskDeleteOne {
 	builder := c.Delete().Where(task.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -479,12 +479,12 @@ func (c *TaskClient) Query() *TaskQuery {
 }
 
 // Get returns a Task entity by its id.
-func (c *TaskClient) Get(ctx context.Context, id int) (*Task, error) {
+func (c *TaskClient) Get(ctx context.Context, id uuid.UUID) (*Task, error) {
 	return c.Query().Where(task.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TaskClient) GetX(ctx context.Context, id int) *Task {
+func (c *TaskClient) GetX(ctx context.Context, id uuid.UUID) *Task {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

@@ -25,7 +25,6 @@ type TaskQuery struct {
 	inters      []Interceptor
 	predicates  []predicate.Task
 	withProject *ProjectQuery
-	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -108,8 +107,8 @@ func (_q *TaskQuery) FirstX(ctx context.Context) *Task {
 
 // FirstID returns the first Task ID from the query.
 // Returns a *NotFoundError when no Task ID was found.
-func (_q *TaskQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TaskQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +120,7 @@ func (_q *TaskQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *TaskQuery) FirstIDX(ctx context.Context) int {
+func (_q *TaskQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +158,8 @@ func (_q *TaskQuery) OnlyX(ctx context.Context) *Task {
 // OnlyID is like Only, but returns the only Task ID in the query.
 // Returns a *NotSingularError when more than one Task ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TaskQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *TaskQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +175,7 @@ func (_q *TaskQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *TaskQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TaskQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +203,7 @@ func (_q *TaskQuery) AllX(ctx context.Context) []*Task {
 }
 
 // IDs executes the query and returns a list of Task IDs.
-func (_q *TaskQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *TaskQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -216,7 +215,7 @@ func (_q *TaskQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *TaskQuery) IDsX(ctx context.Context) []int {
+func (_q *TaskQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -371,18 +370,11 @@ func (_q *TaskQuery) prepareQuery(ctx context.Context) error {
 func (_q *TaskQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Task, error) {
 	var (
 		nodes       = []*Task{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
 			_q.withProject != nil,
 		}
 	)
-	if _q.withProject != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, task.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Task).scanValues(nil, columns)
 	}
@@ -414,10 +406,7 @@ func (_q *TaskQuery) loadProject(ctx context.Context, query *ProjectQuery, nodes
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Task)
 	for i := range nodes {
-		if nodes[i].project_tasks == nil {
-			continue
-		}
-		fk := *nodes[i].project_tasks
+		fk := nodes[i].ProjectID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -434,7 +423,7 @@ func (_q *TaskQuery) loadProject(ctx context.Context, query *ProjectQuery, nodes
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "project_tasks" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "project_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -453,7 +442,7 @@ func (_q *TaskQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *TaskQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -467,6 +456,9 @@ func (_q *TaskQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != task.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withProject != nil {
+			_spec.Node.AddColumnOnce(task.FieldProjectID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

@@ -4,9 +4,11 @@ package task
 
 import (
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -16,8 +18,26 @@ const (
 	FieldID = "id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldFinishedAt holds the string denoting the finished_at field in the database.
+	FieldFinishedAt = "finished_at"
+	// FieldStartedAt holds the string denoting the started_at field in the database.
+	FieldStartedAt = "started_at"
+	// FieldArchivedAt holds the string denoting the archived_at field in the database.
+	FieldArchivedAt = "archived_at"
+	// FieldStartingAt holds the string denoting the starting_at field in the database.
+	FieldStartingAt = "starting_at"
+	// FieldDeadline holds the string denoting the deadline field in the database.
+	FieldDeadline = "deadline"
+	// FieldProjectID holds the string denoting the project_id field in the database.
+	FieldProjectID = "project_id"
 	// EdgeProject holds the string denoting the project edge name in mutations.
 	EdgeProject = "project"
 	// Table holds the table name of the task in the database.
@@ -28,20 +48,23 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "project" package.
 	ProjectInverseTable = "projects"
 	// ProjectColumn is the table column denoting the project relation/edge.
-	ProjectColumn = "project_tasks"
+	ProjectColumn = "project_id"
 )
 
 // Columns holds all SQL columns for task fields.
 var Columns = []string{
 	FieldID,
 	FieldTitle,
+	FieldDescription,
 	FieldStatus,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "tasks"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"project_tasks",
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldFinishedAt,
+	FieldStartedAt,
+	FieldArchivedAt,
+	FieldStartingAt,
+	FieldDeadline,
+	FieldProjectID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -51,17 +74,22 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// DefaultDescription holds the default value on creation for the "description" field.
+	DefaultDescription string
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // Status defines the type for the "status" enum field.
@@ -74,6 +102,7 @@ const DefaultStatus = StatusScheduled
 const (
 	StatusScheduled Status = "scheduled"
 	StatusCompleted Status = "completed"
+	StatusArchived  Status = "archived"
 )
 
 func (s Status) String() string {
@@ -83,7 +112,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusScheduled, StatusCompleted:
+	case StatusScheduled, StatusCompleted, StatusArchived:
 		return nil
 	default:
 		return fmt.Errorf("task: invalid enum value for status field: %q", s)
@@ -103,9 +132,54 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
 }
 
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByFinishedAt orders the results by the finished_at field.
+func ByFinishedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFinishedAt, opts...).ToFunc()
+}
+
+// ByStartedAt orders the results by the started_at field.
+func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartedAt, opts...).ToFunc()
+}
+
+// ByArchivedAt orders the results by the archived_at field.
+func ByArchivedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldArchivedAt, opts...).ToFunc()
+}
+
+// ByStartingAt orders the results by the starting_at field.
+func ByStartingAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartingAt, opts...).ToFunc()
+}
+
+// ByDeadline orders the results by the deadline field.
+func ByDeadline(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeadline, opts...).ToFunc()
+}
+
+// ByProjectID orders the results by the project_id field.
+func ByProjectID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProjectID, opts...).ToFunc()
 }
 
 // ByProjectField orders the results by project field.
