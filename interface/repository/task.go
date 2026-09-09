@@ -175,39 +175,19 @@ func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string,
 		}
 	}
 
-	update := repository.client.Task.
+	task, err := repository.client.Task.
 		UpdateOneID(taskUUID).
-		Where(entTask.HasProjectWith(entProject.UserID(userUUID)))
-
-	if input.Title != nil {
-		update.SetTitle(*input.Title)
-	}
-	if input.Description != nil {
-		update.SetDescription(*input.Description)
-	}
-	if input.Status != nil {
-		update.SetStatus(*input.Status)
-	}
-	if input.FinishedAt != nil {
-		update.SetFinishedAt(*input.FinishedAt)
-	}
-	if input.StartedAt != nil {
-		update.SetStartedAt(*input.StartedAt)
-	}
-	if input.ArchivedAt != nil {
-		update.SetArchivedAt(*input.ArchivedAt)
-	}
-	if input.StartingAt != nil {
-		update.SetStartingAt(*input.StartingAt)
-	}
-	if input.Deadline != nil {
-		update.SetDeadline(*input.Deadline)
-	}
-	if input.ProjectID != nil {
-		update.SetProjectID(project.ID)
-	}
-
-	task, err := update.Save(ctx)
+		Where(entTask.HasProjectWith(entProject.UserID(userUUID))).
+		SetNillableTitle(input.Title).
+		SetNillableDescription(input.Description).
+		SetNillableStatus(input.Status).
+		SetNillableFinishedAt(input.FinishedAt).
+		SetNillableStartedAt(input.StartedAt).
+		SetNillableArchivedAt(input.ArchivedAt).
+		SetNillableStartingAt(input.StartingAt).
+		SetNillableDeadline(input.Deadline).
+		SetNillableProjectID(input.ProjectID).
+		Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, ErrNotFound
