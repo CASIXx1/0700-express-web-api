@@ -9,6 +9,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -126,6 +127,17 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 	}
 
 	statuses := request.URL.Query()["status"]
+	for _, status := range statuses {
+		taskStatus := entTask.Status(status)
+		err := entTask.StatusValidator(taskStatus)
+		if err != nil {
+			WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+				Message: err.Error(),
+			})
+			return
+		}
+	}
+
 	result, err := handler.taskUsecase.FindTasks(request.Context(), userID, statuses, paginationRequest.Page, paginationRequest.Limit)
 	if err != nil {
 		log.Printf("failed to find tasks: %v", err)
@@ -259,6 +271,12 @@ func (handler *TaskHandler) UpdateTask(writer http.ResponseWriter, request *http
 		})
 		return
 	}
+	if input == (repository.UpdateTaskInput{}) {
+		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+			Message: "missing update fields",
+		})
+		return
+	}
 
 	task, err := handler.taskUsecase.UpdateTask(request.Context(), userID, taskID, input)
 	if err != nil {
@@ -325,7 +343,7 @@ func taskResponseFromTask(task *ent.Task) taskResponse {
 }
 
 func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTaskInput, error) {
-	if request.Title == "" {
+	if strings.TrimSpace(request.Title) == "" {
 		return repository.CreateTaskInput{}, errors.New("missing title")
 	}
 
@@ -367,6 +385,9 @@ func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTas
 func updateTaskInputFromRequest(request updateTaskRequest) (repository.UpdateTaskInput, error) {
 	if request.Kind != nil && *request.Kind != "task" {
 		return repository.UpdateTaskInput{}, errors.New("invalid kind")
+	}
+	if request.Title != nil && strings.TrimSpace(*request.Title) == "" {
+		return repository.UpdateTaskInput{}, errors.New("missing title")
 	}
 
 	input := repository.UpdateTaskInput{

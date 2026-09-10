@@ -7,6 +7,13 @@ db/migrate/up:
 db/migrate/down:
 	docker compose --profile migration run --rm migrate down 1
 
+test/all:
+	$(MAKE) test/auth
+	$(MAKE) test/authRequired
+	$(MAKE) test/user
+	$(MAKE) test/projects
+	$(MAKE) test/tasks
+
 test/auth:
 	API_BASE_URL=http://localhost:8080 npx vitest run test/tests/auth.test.ts
 
