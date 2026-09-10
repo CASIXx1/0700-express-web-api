@@ -16,7 +16,7 @@ type TaskListResult struct {
 }
 
 type TaskRepository interface {
-	CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) error
+	CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) (*ent.Task, error)
 	FindTasks(ctx context.Context, userID string, statuses []string, limit int, offset int) ([]*ent.Task, error)
 	CountTasks(ctx context.Context, userID string, statuses []string) (int, error)
 	FindTaskByID(ctx context.Context, userID string, taskID string) (*ent.Task, error)
@@ -30,7 +30,7 @@ func NewTaskUsecase(taskRepository TaskRepository) *TaskUsecase {
 	}
 }
 
-func (usecase *TaskUsecase) CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) error {
+func (usecase *TaskUsecase) CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) (*ent.Task, error) {
 	return usecase.taskRepository.CreateTask(ctx, userID, input)
 }
 

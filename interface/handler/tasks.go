@@ -88,7 +88,7 @@ func (handler *TaskHandler) CreateTask(writer http.ResponseWriter, request *http
 		return
 	}
 
-	err = handler.taskUsecase.CreateTask(request.Context(), userID, input)
+	task, err := handler.taskUsecase.CreateTask(request.Context(), userID, input)
 	if err != nil {
 		log.Printf("failed to create task: %v", err)
 
@@ -103,7 +103,9 @@ func (handler *TaskHandler) CreateTask(writer http.ResponseWriter, request *http
 		return
 	}
 
-	writer.WriteHeader(http.StatusCreated)
+	WriteResponse(writer, http.StatusCreated, normalResponse[taskResponse]{
+		Data: taskResponseFromTask(task),
+	})
 }
 
 func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.Request) {

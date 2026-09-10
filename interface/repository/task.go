@@ -44,10 +44,10 @@ func NewTaskRepository(client *ent.Client) *TaskRepository {
 	}
 }
 
-func (repository *TaskRepository) CreateTask(ctx context.Context, userID string, input CreateTaskInput) error {
+func (repository *TaskRepository) CreateTask(ctx context.Context, userID string, input CreateTaskInput) (*ent.Task, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	project, err := repository.client.Project.
@@ -57,13 +57,13 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, userID string,
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return ErrNotFound
+			return nil, ErrNotFound
 		}
 
-		return err
+		return nil, err
 	}
 
-	return repository.client.Task.
+	task, err := repository.client.Task.
 		Create().
 		SetTitle(input.Title).
 		SetDescription(input.Description).
@@ -74,7 +74,14 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, userID string,
 		SetNillableStartingAt(input.StartingAt).
 		SetNillableDeadline(input.Deadline).
 		SetProjectID(project.ID).
-		Exec(ctx)
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	task.Edges.Project = project
+
+	return task, nil
 }
 
 func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, statuses []string, limit int, offset int) ([]*ent.Task, error) {
