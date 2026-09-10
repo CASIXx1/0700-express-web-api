@@ -175,7 +175,7 @@ func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string,
 			Only(ctx)
 		if err != nil {
 			if ent.IsNotFound(err) {
-				return nil, ErrNotFound
+				return nil, ErrBadRequest
 			}
 
 			return nil, err

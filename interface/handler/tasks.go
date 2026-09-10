@@ -271,6 +271,13 @@ func (handler *TaskHandler) UpdateTask(writer http.ResponseWriter, request *http
 			return
 		}
 
+		if errors.Is(err, repository.ErrBadRequest) {
+			WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
+				Message: err.Error(),
+			})
+			return
+		}
+
 		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),
 		})
@@ -358,6 +365,10 @@ func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTas
 }
 
 func updateTaskInputFromRequest(request updateTaskRequest) (repository.UpdateTaskInput, error) {
+	if request.Kind != nil && *request.Kind != "task" {
+		return repository.UpdateTaskInput{}, errors.New("invalid kind")
+	}
+
 	input := repository.UpdateTaskInput{
 		Title:       request.Title,
 		Description: request.Description,
