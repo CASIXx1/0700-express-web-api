@@ -7,7 +7,6 @@ import (
 	"0700-express-web-api/interface/repository"
 	"0700-express-web-api/internal/auth"
 	"0700-express-web-api/usecase"
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,11 +31,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer dbClient.Close()
-
-	// Migration
-	if err := dbClient.Schema.Create(context.Background()); err != nil {
-		log.Fatal(err)
-	}
 
 	r := mux.NewRouter()
 	r.Use(middleware.RequestLog)

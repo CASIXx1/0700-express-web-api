@@ -1,6 +1,12 @@
 db/seed:
 	docker compose --profile seed run --rm seed
 
+db/migrate/up:
+	docker compose --profile migration run --rm migrate
+
+db/migrate/down:
+	docker compose --profile migration run --rm migrate down 1
+
 test/auth:
 	API_BASE_URL=http://localhost:8080 npx vitest run test/tests/auth.test.ts
 
