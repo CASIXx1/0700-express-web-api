@@ -335,12 +335,12 @@ func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTas
 		return repository.CreateTaskInput{}, err
 	}
 
-	startedAt, err := time.Parse("2026-01-01", request.StartingAt)
+	startedAt, err := time.Parse("2006-01-02", request.StartingAt)
 	if err != nil {
 		return repository.CreateTaskInput{}, err
 	}
 
-	deadline, err := time.Parse("2026-01-01", request.Deadline)
+	deadline, err := time.Parse("2006-01-02", request.Deadline)
 	if err != nil {
 		return repository.CreateTaskInput{}, err
 	}
@@ -356,12 +356,43 @@ func createTaskInputFromRequest(request createTaskRequest) (repository.CreateTas
 }
 
 func updateTaskInputFromRequest(request updateTaskRequest) (repository.UpdateTaskInput, error) {
-	return repository.UpdateTaskInput{
+	input := repository.UpdateTaskInput{
 		Title:       request.Title,
 		Description: request.Description,
-		Status:      request.Status,
-		ProjectID:   request.ProjectID,
-		StartingAt:  request.StartingAt,
-		Deadline:    request.Deadline,
-	}, nil
+	}
+
+	if request.Status != nil {
+		status := entTask.Status(*request.Status)
+		err := entTask.StatusValidator(status)
+		if err != nil {
+			return repository.UpdateTaskInput{}, err
+		}
+		input.Status = &status
+	}
+
+	if request.ProjectID != nil {
+		projectID, err := uuid.Parse(*request.ProjectID)
+		if err != nil {
+			return repository.UpdateTaskInput{}, err
+		}
+		input.ProjectID = &projectID
+	}
+
+	if request.StartingAt != nil {
+		startingAt, err := time.Parse("2006-01-02", *request.StartingAt)
+		if err != nil {
+			return repository.UpdateTaskInput{}, err
+		}
+		input.StartingAt = &startingAt
+	}
+
+	if request.Deadline != nil {
+		deadline, err := time.Parse("2006-01-02", *request.Deadline)
+		if err != nil {
+			return repository.UpdateTaskInput{}, err
+		}
+		input.Deadline = &deadline
+	}
+
+	return input, nil
 }
