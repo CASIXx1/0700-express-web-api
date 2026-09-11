@@ -3,6 +3,8 @@ package usecase
 import (
 	"0700-express-web-api/ent"
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type ProjectUsecase struct {
@@ -21,9 +23,9 @@ type PageInfo struct {
 }
 
 type ProjectRepository interface {
-	FindProjects(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error)
-	FindProjectBySlug(ctx context.Context, userID string, slug string) (*ent.Project, error)
-	CountProjects(ctx context.Context, userID string) (int, error)
+	FindProjects(ctx context.Context, userID uuid.UUID, limit int, offset int) ([]*ent.Project, error)
+	FindProjectBySlug(ctx context.Context, userID uuid.UUID, slug string) (*ent.Project, error)
+	CountProjects(ctx context.Context, userID uuid.UUID) (int, error)
 }
 
 func NewProjectUsecase(projectRepository ProjectRepository) *ProjectUsecase {
@@ -32,7 +34,7 @@ func NewProjectUsecase(projectRepository ProjectRepository) *ProjectUsecase {
 	}
 }
 
-func (usecase *ProjectUsecase) FindProjects(ctx context.Context, userID string, page int, limit int) (*ProjectListResult, error) {
+func (usecase *ProjectUsecase) FindProjects(ctx context.Context, userID uuid.UUID, page int, limit int) (*ProjectListResult, error) {
 	offset := (page - 1) * limit
 
 	totalCount, err := usecase.projectRepository.CountProjects(ctx, userID)
@@ -55,6 +57,6 @@ func (usecase *ProjectUsecase) FindProjects(ctx context.Context, userID string, 
 	}, nil
 }
 
-func (usecase *ProjectUsecase) FindProjectBySlug(ctx context.Context, userID string, slug string) (*ent.Project, error) {
+func (usecase *ProjectUsecase) FindProjectBySlug(ctx context.Context, userID uuid.UUID, slug string) (*ent.Project, error) {
 	return usecase.projectRepository.FindProjectBySlug(ctx, userID, slug)
 }

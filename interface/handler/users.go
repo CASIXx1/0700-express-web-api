@@ -25,7 +25,7 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 
 func (handler *UserHandler) Me(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})

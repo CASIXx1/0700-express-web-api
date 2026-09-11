@@ -65,7 +65,7 @@ func NewTaskHandler(taskUsecase *usecase.TaskUsecase) *TaskHandler {
 
 func (handler *TaskHandler) CreateTask(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
@@ -111,7 +111,7 @@ func (handler *TaskHandler) CreateTask(writer http.ResponseWriter, request *http
 
 func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
@@ -162,17 +162,17 @@ func (handler *TaskHandler) FindTasks(writer http.ResponseWriter, request *http.
 
 func (handler *TaskHandler) DeleteTask(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	taskID := mux.Vars(request)["id"]
-	if taskID == "" {
+	taskID, err := uuid.Parse(mux.Vars(request)["id"])
+	if err != nil {
 		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
-			Message: "missing task id",
+			Message: err.Error(),
 		})
 		return
 	}
@@ -201,17 +201,17 @@ func (handler *TaskHandler) DeleteTask(writer http.ResponseWriter, request *http
 
 func (handler *TaskHandler) FindTaskByID(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	taskID := mux.Vars(request)["id"]
-	if taskID == "" {
+	taskID, err := uuid.Parse(mux.Vars(request)["id"])
+	if err != nil {
 		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
-			Message: "missing task id",
+			Message: err.Error(),
 		})
 		return
 	}
@@ -240,23 +240,23 @@ func (handler *TaskHandler) FindTaskByID(writer http.ResponseWriter, request *ht
 
 func (handler *TaskHandler) UpdateTask(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
 		return
 	}
 
-	taskID := mux.Vars(request)["id"]
-	if taskID == "" {
+	taskID, err := uuid.Parse(mux.Vars(request)["id"])
+	if err != nil {
 		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
-			Message: "missing task id",
+			Message: err.Error(),
 		})
 		return
 	}
 
 	var body updateTaskRequest
-	err := json.NewDecoder(request.Body).Decode(&body)
+	err = json.NewDecoder(request.Body).Decode(&body)
 	if err != nil {
 		WriteResponse(writer, http.StatusBadRequest, ErrorResponse{
 			Message: err.Error(),

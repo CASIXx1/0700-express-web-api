@@ -16,6 +16,7 @@ import (
 
 func TestTaskUsecaseFindTasks(t *testing.T) {
 	ctx := context.Background()
+	userID := uuid.New()
 	statuses := []string{"scheduled"}
 	tasks := []*ent.Task{}
 	countTasksError := errors.New("failed to count tasks")
@@ -30,8 +31,8 @@ func TestTaskUsecaseFindTasks(t *testing.T) {
 		{
 			name: "normal case: find tasks",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().CountTasks(ctx, "user-id", statuses).Return(3, nil)
-				repository.EXPECT().FindTasks(ctx, "user-id", statuses, 1, 1).Return(tasks, nil)
+				repository.EXPECT().CountTasks(ctx, userID, statuses).Return(3, nil)
+				repository.EXPECT().FindTasks(ctx, userID, statuses, 1, 1).Return(tasks, nil)
 			},
 			expectedResult: &TaskListResult{
 				Tasks: tasks,
@@ -45,15 +46,15 @@ func TestTaskUsecaseFindTasks(t *testing.T) {
 		{
 			name: "error case: count tasks failed",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().CountTasks(ctx, "user-id", statuses).Return(0, countTasksError)
+				repository.EXPECT().CountTasks(ctx, userID, statuses).Return(0, countTasksError)
 			},
 			expectedError: countTasksError,
 		},
 		{
 			name: "error case: find tasks failed",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().CountTasks(ctx, "user-id", statuses).Return(3, nil)
-				repository.EXPECT().FindTasks(ctx, "user-id", statuses, 1, 1).Return(nil, findTasksError)
+				repository.EXPECT().CountTasks(ctx, userID, statuses).Return(3, nil)
+				repository.EXPECT().FindTasks(ctx, userID, statuses, 1, 1).Return(nil, findTasksError)
 			},
 			expectedError: findTasksError,
 		},
@@ -66,7 +67,7 @@ func TestTaskUsecaseFindTasks(t *testing.T) {
 			test.setup(repository)
 
 			taskUsecase := NewTaskUsecase(repository)
-			result, err := taskUsecase.FindTasks(ctx, "user-id", statuses, 2, 1)
+			result, err := taskUsecase.FindTasks(ctx, userID, statuses, 2, 1)
 
 			if test.expectedError != nil {
 				require.ErrorIs(t, err, test.expectedError)
@@ -82,6 +83,7 @@ func TestTaskUsecaseFindTasks(t *testing.T) {
 
 func TestTaskUsecaseCreateTask(t *testing.T) {
 	ctx := context.Background()
+	userID := uuid.New()
 	input := repository.CreateTaskInput{
 		Title:     "task title",
 		Status:    entTask.StatusScheduled,
@@ -99,14 +101,14 @@ func TestTaskUsecaseCreateTask(t *testing.T) {
 		{
 			name: "normal case: create task",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().CreateTask(ctx, "user-id", input).Return(task, nil)
+				repository.EXPECT().CreateTask(ctx, userID, input).Return(task, nil)
 			},
 			expectedTask: task,
 		},
 		{
 			name: "error case: create task failed",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().CreateTask(ctx, "user-id", input).Return(nil, createTaskError)
+				repository.EXPECT().CreateTask(ctx, userID, input).Return(nil, createTaskError)
 			},
 			expectedError: createTaskError,
 		},
@@ -118,7 +120,7 @@ func TestTaskUsecaseCreateTask(t *testing.T) {
 			repository := NewMockTaskRepository(ctrl)
 			test.setup(repository)
 
-			result, err := NewTaskUsecase(repository).CreateTask(ctx, "user-id", input)
+			result, err := NewTaskUsecase(repository).CreateTask(ctx, userID, input)
 
 			assertTaskResult(t, result, err, test.expectedTask, test.expectedError)
 		})
@@ -127,6 +129,8 @@ func TestTaskUsecaseCreateTask(t *testing.T) {
 
 func TestTaskUsecaseFindTaskByID(t *testing.T) {
 	ctx := context.Background()
+	userID := uuid.New()
+	taskID := uuid.New()
 	task := &ent.Task{}
 	findTaskError := errors.New("failed to find task")
 
@@ -139,14 +143,14 @@ func TestTaskUsecaseFindTaskByID(t *testing.T) {
 		{
 			name: "normal case: find task",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().FindTaskByID(ctx, "user-id", "task-id").Return(task, nil)
+				repository.EXPECT().FindTaskByID(ctx, userID, taskID).Return(task, nil)
 			},
 			expectedTask: task,
 		},
 		{
 			name: "error case: find task failed",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().FindTaskByID(ctx, "user-id", "task-id").Return(nil, findTaskError)
+				repository.EXPECT().FindTaskByID(ctx, userID, taskID).Return(nil, findTaskError)
 			},
 			expectedError: findTaskError,
 		},
@@ -158,7 +162,7 @@ func TestTaskUsecaseFindTaskByID(t *testing.T) {
 			repository := NewMockTaskRepository(ctrl)
 			test.setup(repository)
 
-			result, err := NewTaskUsecase(repository).FindTaskByID(ctx, "user-id", "task-id")
+			result, err := NewTaskUsecase(repository).FindTaskByID(ctx, userID, taskID)
 
 			assertTaskResult(t, result, err, test.expectedTask, test.expectedError)
 		})
@@ -167,6 +171,8 @@ func TestTaskUsecaseFindTaskByID(t *testing.T) {
 
 func TestTaskUsecaseUpdateTask(t *testing.T) {
 	ctx := context.Background()
+	userID := uuid.New()
+	taskID := uuid.New()
 	title := "updated task title"
 	input := repository.UpdateTaskInput{Title: &title}
 	task := &ent.Task{}
@@ -181,14 +187,14 @@ func TestTaskUsecaseUpdateTask(t *testing.T) {
 		{
 			name: "normal case: update task",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().UpdateTask(ctx, "user-id", "task-id", input).Return(task, nil)
+				repository.EXPECT().UpdateTask(ctx, userID, taskID, input).Return(task, nil)
 			},
 			expectedTask: task,
 		},
 		{
 			name: "error case: update task failed",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().UpdateTask(ctx, "user-id", "task-id", input).Return(nil, updateTaskError)
+				repository.EXPECT().UpdateTask(ctx, userID, taskID, input).Return(nil, updateTaskError)
 			},
 			expectedError: updateTaskError,
 		},
@@ -200,7 +206,7 @@ func TestTaskUsecaseUpdateTask(t *testing.T) {
 			repository := NewMockTaskRepository(ctrl)
 			test.setup(repository)
 
-			result, err := NewTaskUsecase(repository).UpdateTask(ctx, "user-id", "task-id", input)
+			result, err := NewTaskUsecase(repository).UpdateTask(ctx, userID, taskID, input)
 
 			assertTaskResult(t, result, err, test.expectedTask, test.expectedError)
 		})
@@ -209,6 +215,8 @@ func TestTaskUsecaseUpdateTask(t *testing.T) {
 
 func TestTaskUsecaseDeleteTask(t *testing.T) {
 	ctx := context.Background()
+	userID := uuid.New()
+	taskID := uuid.New()
 	task := &ent.Task{}
 	deleteTaskError := errors.New("failed to delete task")
 
@@ -221,14 +229,14 @@ func TestTaskUsecaseDeleteTask(t *testing.T) {
 		{
 			name: "normal case: delete task",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().DeleteTask(ctx, "user-id", "task-id").Return(task, nil)
+				repository.EXPECT().DeleteTask(ctx, userID, taskID).Return(task, nil)
 			},
 			expectedTask: task,
 		},
 		{
 			name: "error case: delete task failed",
 			setup: func(repository *MockTaskRepository) {
-				repository.EXPECT().DeleteTask(ctx, "user-id", "task-id").Return(nil, deleteTaskError)
+				repository.EXPECT().DeleteTask(ctx, userID, taskID).Return(nil, deleteTaskError)
 			},
 			expectedError: deleteTaskError,
 		},
@@ -240,7 +248,7 @@ func TestTaskUsecaseDeleteTask(t *testing.T) {
 			repository := NewMockTaskRepository(ctrl)
 			test.setup(repository)
 
-			result, err := NewTaskUsecase(repository).DeleteTask(ctx, "user-id", "task-id")
+			result, err := NewTaskUsecase(repository).DeleteTask(ctx, userID, taskID)
 
 			assertTaskResult(t, result, err, test.expectedTask, test.expectedError)
 		})

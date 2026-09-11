@@ -15,6 +15,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -43,7 +44,7 @@ func (m *MockTaskRepository) EXPECT() *MockTaskRepositoryMockRecorder {
 }
 
 // CountTasks mocks base method.
-func (m *MockTaskRepository) CountTasks(ctx context.Context, userID string, statuses []string) (int, error) {
+func (m *MockTaskRepository) CountTasks(ctx context.Context, userID uuid.UUID, statuses []string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountTasks", ctx, userID, statuses)
 	ret0, _ := ret[0].(int)
@@ -58,7 +59,7 @@ func (mr *MockTaskRepositoryMockRecorder) CountTasks(ctx, userID, statuses any) 
 }
 
 // CreateTask mocks base method.
-func (m *MockTaskRepository) CreateTask(ctx context.Context, userID string, input repository.CreateTaskInput) (*ent.Task, error) {
+func (m *MockTaskRepository) CreateTask(ctx context.Context, userID uuid.UUID, input repository.CreateTaskInput) (*ent.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTask", ctx, userID, input)
 	ret0, _ := ret[0].(*ent.Task)
@@ -73,7 +74,7 @@ func (mr *MockTaskRepositoryMockRecorder) CreateTask(ctx, userID, input any) *go
 }
 
 // DeleteTask mocks base method.
-func (m *MockTaskRepository) DeleteTask(ctx context.Context, userID, taskID string) (*ent.Task, error) {
+func (m *MockTaskRepository) DeleteTask(ctx context.Context, userID, taskID uuid.UUID) (*ent.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteTask", ctx, userID, taskID)
 	ret0, _ := ret[0].(*ent.Task)
@@ -88,7 +89,7 @@ func (mr *MockTaskRepositoryMockRecorder) DeleteTask(ctx, userID, taskID any) *g
 }
 
 // FindTaskByID mocks base method.
-func (m *MockTaskRepository) FindTaskByID(ctx context.Context, userID, taskID string) (*ent.Task, error) {
+func (m *MockTaskRepository) FindTaskByID(ctx context.Context, userID, taskID uuid.UUID) (*ent.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindTaskByID", ctx, userID, taskID)
 	ret0, _ := ret[0].(*ent.Task)
@@ -103,7 +104,7 @@ func (mr *MockTaskRepositoryMockRecorder) FindTaskByID(ctx, userID, taskID any) 
 }
 
 // FindTasks mocks base method.
-func (m *MockTaskRepository) FindTasks(ctx context.Context, userID string, statuses []string, limit, offset int) ([]*ent.Task, error) {
+func (m *MockTaskRepository) FindTasks(ctx context.Context, userID uuid.UUID, statuses []string, limit, offset int) ([]*ent.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindTasks", ctx, userID, statuses, limit, offset)
 	ret0, _ := ret[0].([]*ent.Task)
@@ -118,7 +119,7 @@ func (mr *MockTaskRepositoryMockRecorder) FindTasks(ctx, userID, statuses, limit
 }
 
 // UpdateTask mocks base method.
-func (m *MockTaskRepository) UpdateTask(ctx context.Context, userID, taskID string, input repository.UpdateTaskInput) (*ent.Task, error) {
+func (m *MockTaskRepository) UpdateTask(ctx context.Context, userID, taskID uuid.UUID, input repository.UpdateTaskInput) (*ent.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTask", ctx, userID, taskID, input)
 	ret0, _ := ret[0].(*ent.Task)

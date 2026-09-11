@@ -42,7 +42,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	startedAt := time.Date(2026, 8, 5, 0, 0, 0, 0, jst)
 	deadline := time.Date(2026, 9, 30, 0, 0, 0, 0, jst)
 
-	if _, err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
+	if _, err := taskRepository.CreateTask(ctx, user.ID, repository.CreateTaskInput{
 		Title:       "Learn Golang",
 		Description: "variables, types, functions",
 		Status:      entTask.StatusScheduled,
@@ -55,7 +55,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	}); err != nil {
 		return err
 	}
-	if _, err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
+	if _, err := taskRepository.CreateTask(ctx, user.ID, repository.CreateTaskInput{
 		Title:       "Learn English",
 		Description: "grammar, pronounce, idiom, conversation",
 		Status:      entTask.StatusScheduled,
@@ -68,7 +68,7 @@ func (seeder *taskSeeder) Run(ctx context.Context, client *ent.Client) error {
 	}); err != nil {
 		return err
 	}
-	if _, err := taskRepository.CreateTask(ctx, user.ID.String(), repository.CreateTaskInput{
+	if _, err := taskRepository.CreateTask(ctx, user.ID, repository.CreateTaskInput{
 		Title:       "Learn Design",
 		Description: "UI, UX",
 		Status:      entTask.StatusScheduled,

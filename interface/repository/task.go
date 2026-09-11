@@ -44,16 +44,11 @@ func NewTaskRepository(client *ent.Client) *TaskRepository {
 	}
 }
 
-func (repository *TaskRepository) CreateTask(ctx context.Context, userID string, input CreateTaskInput) (*ent.Task, error) {
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *TaskRepository) CreateTask(ctx context.Context, userID uuid.UUID, input CreateTaskInput) (*ent.Task, error) {
 	project, err := repository.client.Project.
 		Query().
 		Where(entProject.ID(input.ProjectID)).
-		Where(entProject.UserID(userUUID)).
+		Where(entProject.UserID(userID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -84,17 +79,12 @@ func (repository *TaskRepository) CreateTask(ctx context.Context, userID string,
 	return task, nil
 }
 
-func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, statuses []string, limit int, offset int) ([]*ent.Task, error) {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *TaskRepository) FindTasks(ctx context.Context, userID uuid.UUID, statuses []string, limit int, offset int) ([]*ent.Task, error) {
 	query := repository.client.Task.
 		Query().
 		Limit(limit).
 		Offset(offset).
-		Where(entTask.HasProjectWith(entProject.UserID(id))).
+		Where(entTask.HasProjectWith(entProject.UserID(userID))).
 		WithProject().
 		Order(entTask.ByID())
 
@@ -105,15 +95,10 @@ func (repository *TaskRepository) FindTasks(ctx context.Context, userID string, 
 	return query.All(ctx)
 }
 
-func (repository *TaskRepository) CountTasks(ctx context.Context, userID string, statuses []string) (int, error) {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return 0, err
-	}
-
+func (repository *TaskRepository) CountTasks(ctx context.Context, userID uuid.UUID, statuses []string) (int, error) {
 	query := repository.client.Task.
 		Query().
-		Where(entTask.HasProjectWith(entProject.UserID(id)))
+		Where(entTask.HasProjectWith(entProject.UserID(userID)))
 
 	if len(statuses) > 0 {
 		query.Where(entTask.StatusIn(taskStatuses(statuses)...))
@@ -122,21 +107,11 @@ func (repository *TaskRepository) CountTasks(ctx context.Context, userID string,
 	return query.Count(ctx)
 }
 
-func (repository *TaskRepository) FindTaskByID(ctx context.Context, userID string, taskID string) (*ent.Task, error) {
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	taskUUID, err := uuid.Parse(taskID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *TaskRepository) FindTaskByID(ctx context.Context, userID uuid.UUID, taskID uuid.UUID) (*ent.Task, error) {
 	task, err := repository.client.Task.
 		Query().
-		Where(entTask.ID(taskUUID)).
-		Where(entTask.HasProjectWith(entProject.UserID(userUUID))).
+		Where(entTask.ID(taskID)).
+		Where(entTask.HasProjectWith(entProject.UserID(userID))).
 		WithProject().
 		Only(ctx)
 	if err != nil {
@@ -150,17 +125,7 @@ func (repository *TaskRepository) FindTaskByID(ctx context.Context, userID strin
 	return task, nil
 }
 
-func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string, taskID string, input UpdateTaskInput) (*ent.Task, error) {
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	taskUUID, err := uuid.Parse(taskID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *TaskRepository) UpdateTask(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, input UpdateTaskInput) (*ent.Task, error) {
 	currentTask, err := repository.FindTaskByID(ctx, userID, taskID)
 	if err != nil {
 		return nil, err
@@ -171,7 +136,7 @@ func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string,
 		project, err = repository.client.Project.
 			Query().
 			Where(entProject.ID(*input.ProjectID)).
-			Where(entProject.UserID(userUUID)).
+			Where(entProject.UserID(userID)).
 			Only(ctx)
 		if err != nil {
 			if ent.IsNotFound(err) {
@@ -183,8 +148,8 @@ func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string,
 	}
 
 	task, err := repository.client.Task.
-		UpdateOneID(taskUUID).
-		Where(entTask.HasProjectWith(entProject.UserID(userUUID))).
+		UpdateOneID(taskID).
+		Where(entTask.HasProjectWith(entProject.UserID(userID))).
 		SetNillableTitle(input.Title).
 		SetNillableDescription(input.Description).
 		SetNillableStatus(input.Status).
@@ -208,21 +173,11 @@ func (repository *TaskRepository) UpdateTask(ctx context.Context, userID string,
 	return task, nil
 }
 
-func (repository *TaskRepository) DeleteTask(ctx context.Context, userID string, taskID string) (*ent.Task, error) {
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	taskUUID, err := uuid.Parse(taskID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *TaskRepository) DeleteTask(ctx context.Context, userID uuid.UUID, taskID uuid.UUID) (*ent.Task, error) {
 	task, err := repository.client.Task.
 		Query().
-		Where(entTask.ID(taskUUID)).
-		Where(entTask.HasProjectWith(entProject.UserID(userUUID))).
+		Where(entTask.ID(taskID)).
+		Where(entTask.HasProjectWith(entProject.UserID(userID))).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
