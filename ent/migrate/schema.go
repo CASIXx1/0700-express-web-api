@@ -41,10 +41,18 @@ var (
 	}
 	// TasksColumns holds the columns for the "tasks" table.
 	TasksColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "title", Type: field.TypeString},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"scheduled", "completed"}, Default: "scheduled"},
-		{Name: "project_tasks", Type: field.TypeUUID},
+		{Name: "description", Type: field.TypeString, Default: ""},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"scheduled", "completed", "archived"}, Default: "scheduled"},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "finished_at", Type: field.TypeTime, Nullable: true},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "archived_at", Type: field.TypeTime, Nullable: true},
+		{Name: "starting_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deadline", Type: field.TypeTime, Nullable: true},
+		{Name: "project_id", Type: field.TypeUUID},
 	}
 	// TasksTable holds the schema information for the "tasks" table.
 	TasksTable = &schema.Table{
@@ -54,7 +62,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tasks_projects_tasks",
-				Columns:    []*schema.Column{TasksColumns[3]},
+				Columns:    []*schema.Column{TasksColumns[11]},
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

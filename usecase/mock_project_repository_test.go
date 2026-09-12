@@ -14,6 +14,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,7 +43,7 @@ func (m *MockProjectRepository) EXPECT() *MockProjectRepositoryMockRecorder {
 }
 
 // CountProjects mocks base method.
-func (m *MockProjectRepository) CountProjects(ctx context.Context, userID string) (int, error) {
+func (m *MockProjectRepository) CountProjects(ctx context.Context, userID uuid.UUID) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountProjects", ctx, userID)
 	ret0, _ := ret[0].(int)
@@ -57,7 +58,7 @@ func (mr *MockProjectRepositoryMockRecorder) CountProjects(ctx, userID any) *gom
 }
 
 // FindProjectBySlug mocks base method.
-func (m *MockProjectRepository) FindProjectBySlug(ctx context.Context, userID, slug string) (*ent.Project, error) {
+func (m *MockProjectRepository) FindProjectBySlug(ctx context.Context, userID uuid.UUID, slug string) (*ent.Project, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindProjectBySlug", ctx, userID, slug)
 	ret0, _ := ret[0].(*ent.Project)
@@ -72,7 +73,7 @@ func (mr *MockProjectRepositoryMockRecorder) FindProjectBySlug(ctx, userID, slug
 }
 
 // FindProjects mocks base method.
-func (m *MockProjectRepository) FindProjects(ctx context.Context, userID string, limit, offset int) ([]*ent.Project, error) {
+func (m *MockProjectRepository) FindProjects(ctx context.Context, userID uuid.UUID, limit, offset int) ([]*ent.Project, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindProjects", ctx, userID, limit, offset)
 	ret0, _ := ret[0].([]*ent.Project)

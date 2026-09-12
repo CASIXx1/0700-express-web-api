@@ -260,14 +260,14 @@ func (_u *ProjectUpdate) SetUser(v *User) *ProjectUpdate {
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
-func (_u *ProjectUpdate) AddTaskIDs(ids ...int) *ProjectUpdate {
+func (_u *ProjectUpdate) AddTaskIDs(ids ...uuid.UUID) *ProjectUpdate {
 	_u.mutation.AddTaskIDs(ids...)
 	return _u
 }
 
 // AddTasks adds the "tasks" edges to the Task entity.
 func (_u *ProjectUpdate) AddTasks(v ...*Task) *ProjectUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -292,14 +292,14 @@ func (_u *ProjectUpdate) ClearTasks() *ProjectUpdate {
 }
 
 // RemoveTaskIDs removes the "tasks" edge to Task entities by IDs.
-func (_u *ProjectUpdate) RemoveTaskIDs(ids ...int) *ProjectUpdate {
+func (_u *ProjectUpdate) RemoveTaskIDs(ids ...uuid.UUID) *ProjectUpdate {
 	_u.mutation.RemoveTaskIDs(ids...)
 	return _u
 }
 
 // RemoveTasks removes "tasks" edges to Task entities.
 func (_u *ProjectUpdate) RemoveTasks(v ...*Task) *ProjectUpdate {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -469,7 +469,7 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -482,7 +482,7 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -498,7 +498,7 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -755,14 +755,14 @@ func (_u *ProjectUpdateOne) SetUser(v *User) *ProjectUpdateOne {
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
-func (_u *ProjectUpdateOne) AddTaskIDs(ids ...int) *ProjectUpdateOne {
+func (_u *ProjectUpdateOne) AddTaskIDs(ids ...uuid.UUID) *ProjectUpdateOne {
 	_u.mutation.AddTaskIDs(ids...)
 	return _u
 }
 
 // AddTasks adds the "tasks" edges to the Task entity.
 func (_u *ProjectUpdateOne) AddTasks(v ...*Task) *ProjectUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -787,14 +787,14 @@ func (_u *ProjectUpdateOne) ClearTasks() *ProjectUpdateOne {
 }
 
 // RemoveTaskIDs removes the "tasks" edge to Task entities by IDs.
-func (_u *ProjectUpdateOne) RemoveTaskIDs(ids ...int) *ProjectUpdateOne {
+func (_u *ProjectUpdateOne) RemoveTaskIDs(ids ...uuid.UUID) *ProjectUpdateOne {
 	_u.mutation.RemoveTaskIDs(ids...)
 	return _u
 }
 
 // RemoveTasks removes "tasks" edges to Task entities.
 func (_u *ProjectUpdateOne) RemoveTasks(v ...*Task) *ProjectUpdateOne {
-	ids := make([]int, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -994,7 +994,7 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1007,7 +1007,7 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1023,7 +1023,7 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 			Columns: []string{project.TasksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(task.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

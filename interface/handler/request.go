@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/url"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
 type contextKey int
@@ -17,12 +19,12 @@ type paginationRequest struct {
 	Page  int
 }
 
-func WithUserID(ctx context.Context, userID string) context.Context {
+func WithUserID(ctx context.Context, userID uuid.UUID) context.Context {
 	return context.WithValue(ctx, userIDKey, userID)
 }
 
-func userIDFromContext(ctx context.Context) (string, bool) {
-	userID, ok := ctx.Value(userIDKey).(string)
+func userIDFromContext(ctx context.Context) (uuid.UUID, bool) {
+	userID, ok := ctx.Value(userIDKey).(uuid.UUID)
 	return userID, ok
 }
 

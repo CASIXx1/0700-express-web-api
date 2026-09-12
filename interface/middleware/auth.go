@@ -7,6 +7,8 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type TokenVerifier interface {
@@ -14,7 +16,7 @@ type TokenVerifier interface {
 }
 
 type UserFinder interface {
-	FindUserByID(ctx context.Context, userID string) (*ent.User, error)
+	FindUserByID(ctx context.Context, userID uuid.UUID) (*ent.User, error)
 }
 
 func Auth(tokenVerifier TokenVerifier, userFinder UserFinder) func(http.Handler) http.Handler {
@@ -35,8 +37,15 @@ func Auth(tokenVerifier TokenVerifier, userFinder UserFinder) func(http.Handler)
 				})
 				return
 			}
+			userUUID, err := uuid.Parse(userID)
+			if err != nil {
+				handler.WriteResponse(writer, http.StatusUnauthorized, handler.ErrorResponse{
+					Message: "unauthorized",
+				})
+				return
+			}
 
-			user, err := userFinder.FindUserByID(request.Context(), userID)
+			user, err := userFinder.FindUserByID(request.Context(), userUUID)
 			if err != nil || user == nil || user.Status != "active" {
 				handler.WriteResponse(writer, http.StatusUnauthorized, handler.ErrorResponse{
 					Message: "unauthorized",
@@ -44,7 +53,7 @@ func Auth(tokenVerifier TokenVerifier, userFinder UserFinder) func(http.Handler)
 				return
 			}
 
-			ctx := handler.WithUserID(request.Context(), userID)
+			ctx := handler.WithUserID(request.Context(), userUUID)
 			next.ServeHTTP(writer, request.WithContext(ctx))
 		})
 	}

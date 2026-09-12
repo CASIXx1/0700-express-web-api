@@ -56,7 +56,7 @@ func NewProjectHandler(projectUsecase *usecase.ProjectUsecase) *ProjectHandler {
 
 func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})
@@ -95,7 +95,7 @@ func (handler *ProjectHandler) FindProjects(writer http.ResponseWriter, request 
 
 func (handler *ProjectHandler) FindProjectBySlug(writer http.ResponseWriter, request *http.Request) {
 	userID, ok := userIDFromContext(request.Context())
-	if !ok || userID == "" {
+	if !ok {
 		WriteResponse(writer, http.StatusUnauthorized, ErrorResponse{
 			Message: "unauthorized",
 		})

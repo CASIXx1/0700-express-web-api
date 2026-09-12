@@ -6,6 +6,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -13,6 +14,7 @@ import (
 
 func TestProjectUsecaseFindProjects(t *testing.T) {
 	ctx := context.Background()
+	userID := uuid.New()
 	projects := []*ent.Project{}
 	countProjectsError := errors.New("failed to count projects")
 	findProjectsError := errors.New("failed to find projects")
@@ -26,8 +28,8 @@ func TestProjectUsecaseFindProjects(t *testing.T) {
 		{
 			name: "normal case: find projects",
 			setup: func(repository *MockProjectRepository) {
-				repository.EXPECT().CountProjects(ctx, "user-id").Return(3, nil)
-				repository.EXPECT().FindProjects(ctx, "user-id", 1, 1).Return(projects, nil)
+				repository.EXPECT().CountProjects(ctx, userID).Return(3, nil)
+				repository.EXPECT().FindProjects(ctx, userID, 1, 1).Return(projects, nil)
 			},
 			expectedResult: &ProjectListResult{
 				Projects: projects,
@@ -42,7 +44,7 @@ func TestProjectUsecaseFindProjects(t *testing.T) {
 		{
 			name: "error case: count projects failed",
 			setup: func(repository *MockProjectRepository) {
-				repository.EXPECT().CountProjects(ctx, "user-id").Return(0, countProjectsError)
+				repository.EXPECT().CountProjects(ctx, userID).Return(0, countProjectsError)
 			},
 			expectedResult: nil,
 			expectedError:  countProjectsError,
@@ -50,8 +52,8 @@ func TestProjectUsecaseFindProjects(t *testing.T) {
 		{
 			name: "error case: find projects failed",
 			setup: func(repository *MockProjectRepository) {
-				repository.EXPECT().CountProjects(ctx, "user-id").Return(3, nil)
-				repository.EXPECT().FindProjects(ctx, "user-id", 1, 1).Return(nil, findProjectsError)
+				repository.EXPECT().CountProjects(ctx, userID).Return(3, nil)
+				repository.EXPECT().FindProjects(ctx, userID, 1, 1).Return(nil, findProjectsError)
 			},
 			expectedResult: nil,
 			expectedError:  findProjectsError,
@@ -66,7 +68,7 @@ func TestProjectUsecaseFindProjects(t *testing.T) {
 
 			projectUsecase := NewProjectUsecase(repository)
 
-			result, err := projectUsecase.FindProjects(ctx, "user-id", 2, 1)
+			result, err := projectUsecase.FindProjects(ctx, userID, 2, 1)
 			if test.expectedError != nil {
 				require.ErrorIs(t, err, test.expectedError)
 				assert.Nil(t, result)

@@ -31,30 +31,20 @@ func NewProjectRepository(client *ent.Client) *ProjectRepository {
 	return &ProjectRepository{client}
 }
 
-func (repository *ProjectRepository) FindProjects(ctx context.Context, userID string, limit int, offset int) ([]*ent.Project, error) {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *ProjectRepository) FindProjects(ctx context.Context, userID uuid.UUID, limit int, offset int) ([]*ent.Project, error) {
 	return repository.client.Project.
 		Query().
 		Limit(limit).
 		Offset(offset).
-		Where(entProject.UserID(id)).
+		Where(entProject.UserID(userID)).
 		Order(entProject.BySortOrder()).
 		All(ctx)
 }
 
-func (repository *ProjectRepository) FindProjectBySlug(ctx context.Context, userID string, slug string) (*ent.Project, error) {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, err
-	}
-
+func (repository *ProjectRepository) FindProjectBySlug(ctx context.Context, userID uuid.UUID, slug string) (*ent.Project, error) {
 	return repository.client.Project.
 		Query().
-		Where(entProject.UserID(id)).
+		Where(entProject.UserID(userID)).
 		Where(entProject.Slug(slug)).
 		Only(ctx)
 }
@@ -76,14 +66,9 @@ func (repository *ProjectRepository) CreateProject(ctx context.Context, input Cr
 		Exec(ctx)
 }
 
-func (repository *ProjectRepository) CountProjects(ctx context.Context, userID string) (int, error) {
-	id, err := uuid.Parse(userID)
-	if err != nil {
-		return 0, err
-	}
-
+func (repository *ProjectRepository) CountProjects(ctx context.Context, userID uuid.UUID) (int, error) {
 	return repository.client.Project.
 		Query().
-		Where(entProject.UserID(id)).
+		Where(entProject.UserID(userID)).
 		Count(ctx)
 }

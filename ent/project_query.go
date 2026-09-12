@@ -486,7 +486,9 @@ func (_q *ProjectQuery) loadTasks(ctx context.Context, query *TaskQuery, nodes [
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(task.FieldProjectID)
+	}
 	query.Where(predicate.Task(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(project.TasksColumn), fks...))
 	}))
@@ -495,13 +497,10 @@ func (_q *ProjectQuery) loadTasks(ctx context.Context, query *TaskQuery, nodes [
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.project_tasks
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "project_tasks" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ProjectID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "project_tasks" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "project_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
